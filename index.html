@@ -208,17 +208,17 @@ async function init(){
     viewer.scene.primitives.add(tileset);
     console.log("Google 3D Tiles loaded successfully!");
 
-    // Start camera over Turkey
+    // Start camera over Turkey region
     viewer.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(32, 38, 12000000),
-      orientation:{heading:0, pitch:Cesium.Math.toRadians(-90), roll:0}
+      destination: Cesium.Cartesian3.fromDegrees(35, 35, 10000000),
+      orientation:{heading:0, pitch:Cesium.Math.toRadians(-88), roll:0}
     });
 
     // Gentle zoom in
     setTimeout(()=>{
       viewer.camera.flyTo({
-        destination:Cesium.Cartesian3.fromDegrees(32,39,6000000),
-        orientation:{heading:0,pitch:Cesium.Math.toRadians(-80),roll:0},
+        destination:Cesium.Cartesian3.fromDegrees(35,37,5000000),
+        orientation:{heading:0,pitch:Cesium.Math.toRadians(-82),roll:0},
         duration:4
       });
     },1000);
@@ -243,7 +243,8 @@ async function init(){
 function startFlow(){
   showPhase('selectHome');
   renderList();
-  viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(32,39,4000000),duration:2});
+  viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,36,3000000),
+    orientation:{heading:0,pitch:Cesium.Math.toRadians(-80),roll:0},duration:2});
 }
 
 function renderList(filter=''){
@@ -260,8 +261,8 @@ function pickHome(name,lat,lng,flag){
   document.getElementById('homeName').textContent=name.toUpperCase();
   showPhase('atHome');
   viewer.camera.flyTo({
-    destination:Cesium.Cartesian3.fromDegrees(lng,lat,1500000),
-    orientation:{heading:0,pitch:Cesium.Math.toRadians(-55),roll:0},
+    destination:Cesium.Cartesian3.fromDegrees(lng,lat-3,800000),
+    orientation:{heading:0,pitch:Cesium.Math.toRadians(-75),roll:0},
     duration:2.5,
     complete:()=>setTimeout(()=>showPhase('selectDest'),1500)
   });
@@ -275,9 +276,9 @@ function flyToBremen(){
 
   // Step 1: Rise and fly over Europe
   viewer.camera.flyTo({
-    destination:Cesium.Cartesian3.fromDegrees(15,48,2500000),
-    orientation:{heading:0,pitch:Cesium.Math.toRadians(-65),roll:0},
-    duration:2.5,
+    destination:Cesium.Cartesian3.fromDegrees(18,46,1800000),
+    orientation:{heading:Cesium.Math.toRadians(340),pitch:Cesium.Math.toRadians(-60),roll:0},
+    duration:3,
     complete:()=>{
       // Step 2: Approach Bremen from high
       viewer.camera.flyTo({
@@ -327,8 +328,8 @@ function restart(){
   currentTab='ug';
   document.getElementById('homeSearch').value='';
   viewer.camera.flyTo({
-    destination:Cesium.Cartesian3.fromDegrees(32,38,12000000),
-    orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0},
+    destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),
+    orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0},
     duration:3
   });
 }
