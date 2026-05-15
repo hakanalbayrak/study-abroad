@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Abroad — Constructor University</title>
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Cesium.js"></script>
+<link href="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:'Exo 2',sans-serif}
+  #cesiumContainer{position:absolute;inset:0;width:100%;height:100%}
+  .cesium-viewer-toolbar,
+  .cesium-viewer-fullscreenContainer,
+  .cesium-viewer-vrContainer,
+  .cesium-viewer-geocoderContainer,
+  .cesium-viewer-infoBoxContainer,
+  .cesium-viewer-selectionIndicatorContainer,
+  .cesium-viewer-animationContainer,
+  .cesium-viewer-timelineContainer,
+  .cesium-viewer-bottom{display:none!important}
+  .cesium-widget-credits{font-size:9px!important;opacity:0.4!important}
+  #overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:100;font-family:'Exo 2',sans-serif}
+  #error-msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ff4444;font-size:16px;text-align:center;z-index:200;display:none;background:rgba(0,0,0,0.8);padding:30px;border-radius:12px;max-width:500px}
+  .panel{pointer-events:auto;background:rgba(3,3,20,0.85);border:1px solid rgba(0,200,255,0.2);border-radius:18px;padding:26px 28px;backdrop-filter:blur(24px);max-width:440px;width:90%;max-height:78vh;overflow-y:auto;animation:slideUp 0.5s}
+  .panel-pink{border-color:rgba(255,0,170,0.25)}
+  .title{font-family:'Orbitron',sans-serif;font-weight:700;letter-spacing:2px;text-shadow:0 0 20px rgba(0,240,255,0.3)}
+  .btn{pointer-events:auto;font-family:'Orbitron',sans-serif;font-weight:600;font-size:11px;letter-spacing:2px;border-radius:30px;padding:12px 32px;cursor:pointer;transition:all 0.3s;border:none;color:#fff}
+  .btn-cyan{background:transparent;color:#00f0ff;border:2px solid rgba(0,240,255,0.4);box-shadow:0 0 30px rgba(0,200,255,0.15)}
+  .btn-cyan:hover{background:rgba(0,240,255,0.1);box-shadow:0 0 50px rgba(0,200,255,0.3)}
+  .btn-pink{background:linear-gradient(135deg,#ff00aa,#cc0066);box-shadow:0 0 30px rgba(255,0,170,0.3)}
+  .btn-pink:hover{box-shadow:0 0 50px rgba(255,0,170,0.5)}
+  .btn-blue{background:linear-gradient(135deg,#00d4ff,#0066ff);box-shadow:0 0 25px rgba(0,150,255,0.3)}
+  .btn-blue:hover{box-shadow:0 0 40px rgba(0,150,255,0.5)}
+  .country-btn{pointer-events:auto;display:flex;align-items:center;gap:10px;width:100%;background:rgba(0,200,255,0.04);border:1px solid rgba(0,200,255,0.1);border-radius:9px;padding:9px 12px;cursor:pointer;color:#fff;font-family:'Exo 2',sans-serif;font-size:14px;transition:all 0.2s}
+  .country-btn:hover{background:rgba(0,200,255,0.12);border-color:rgba(0,200,255,0.4)}
+  .search-input{width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(0,200,255,0.25);border-radius:10px;padding:11px 14px;color:#fff;font-size:14px;font-family:'Exo 2',sans-serif;outline:none;margin-bottom:10px}
+  .list-scroll{display:flex;flex-direction:column;gap:4px;max-height:250px;overflow-y:auto}
+  .neon-line{height:1px;background:linear-gradient(90deg,transparent,#ff00aa,transparent);margin:16px 0}
+  .prog-item{padding:9px 12px;background:rgba(255,255,255,0.04);border-radius:7px;border-left:3px solid #ff00aa;color:rgba(255,255,255,0.8);font-size:12px;margin-bottom:6px}
+  .tab-btn{padding:7px 18px;border-radius:18px;cursor:pointer;font-size:10px;font-family:'Orbitron',sans-serif;font-weight:600;letter-spacing:1.5px;border:none;pointer-events:auto;transition:all 0.3s;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.06)}
+  .tab-btn.active{background:linear-gradient(135deg,#ff00aa,#cc0088);color:#fff;box-shadow:0 0 15px rgba(255,0,170,0.3)}
+  .hidden{display:none!important}
+  .center-text{text-align:center}
+  .bottom-panel{position:absolute;bottom:30px;left:50%;transform:translateX(-50%)}
+  .right-panel{position:absolute;right:20px;top:50%;transform:translateY(-50%);max-width:360px;width:85%;max-height:75vh}
+  .flight-bar{width:220px;height:3px;background:rgba(255,255,255,0.08);border-radius:3px;margin:16px auto;overflow:hidden}
+  .flight-fill{height:100%;background:linear-gradient(90deg,#00f0ff,#ff00aa);border-radius:3px;transition:width 0.15s;box-shadow:0 0 10px rgba(255,0,170,0.5)}
+  .pulse{animation:pulse 1s infinite}
+  .spinner{width:40px;height:40px;border:3px solid rgba(0,200,255,0.2);border-top:3px solid #00f0ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:rgba(0,200,255,0.2);border-radius:10px}
+</style>
+</head>
+<body>
+
+<div id="cesiumContainer"></div>
+<div id="error-msg"></div>
+
+<div id="overlay">
+  <div id="phase-welcome" class="center-text" style="animation:fadeIn 1s">
+    <div style="font-size:12px;font-family:'Orbitron',sans-serif;letter-spacing:6px;color:rgba(0,240,255,0.45);margin-bottom:12px">YOUR FUTURE AWAITS</div>
+    <h1 style="font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:#fff;letter-spacing:3px;text-shadow:0 0 40px rgba(0,200,255,0.4)">STUDY<span style="color:#00f0ff"> ABROAD</span></h1>
+    <p style="color:rgba(255,255,255,0.4);font-size:15px;font-weight:300;margin:12px auto 28px;max-width:360px">Explore Constructor University with a photorealistic 3D campus tour</p>
+    <button class="btn btn-cyan" style="padding:16px 48px;font-size:13px;letter-spacing:3px" onclick="startFlow()">BEGIN JOURNEY</button>
+  </div>
+
+  <div id="phase-selectHome" class="panel hidden">
+    <h2 class="title center-text" style="font-size:18px;color:#00f0ff;margin:0 0 4px">🌍 WHERE ARE YOU FROM?</h2>
+    <p class="center-text" style="color:rgba(255,255,255,0.4);font-size:13px;margin:0 0 14px">Select your home country</p>
+    <input class="search-input" id="homeSearch" placeholder="Search country..." oninput="filterCountries()">
+    <div class="list-scroll" id="homeList"></div>
+  </div>
+
+  <div id="phase-atHome" class="center-text hidden">
+    <div id="homeFlag" style="font-size:42px;margin-bottom:8px"></div>
+    <p id="homeName" class="title" style="font-size:16px;color:#00f0ff;letter-spacing:2px"></p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px">
+      <div style="width:6px;height:6px;border-radius:3px;background:#00ffcc" class="pulse"></div>
+      <p style="color:rgba(255,255,255,0.4);font-size:12px">Locating you on Earth...</p>
+    </div>
+  </div>
+
+  <div id="phase-selectDest" class="panel panel-pink hidden" style="max-width:400px;text-align:center">
+    <h2 class="title" style="font-size:18px;color:#ff00aa;margin:0 0 12px">🎓 STUDY IN GERMANY</h2>
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,0,170,0.06);border:1px solid rgba(255,0,170,0.2);border-radius:12px;padding:14px 16px;margin-bottom:16px;text-align:left">
+      <span style="font-size:36px">🇩🇪</span>
+      <div><div style="font-weight:600;font-size:16px;color:#fff">Constructor University</div><div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">Bremen, Germany</div></div>
+    </div>
+    <button class="btn btn-pink" style="padding:14px 40px;font-size:12px" onclick="flyToBremen()">✈ FLY TO BREMEN</button>
+  </div>
+
+  <div id="phase-flying" class="center-text hidden">
+    <div style="font-family:'Orbitron',sans-serif;font-size:14px;color:#ff00aa;letter-spacing:3px">✈ FLYING TO GERMANY</div>
+    <div class="flight-bar"><div class="flight-fill" id="flightBar" style="width:0%"></div></div>
+    <p style="color:rgba(255,255,255,0.35);font-size:12px">Istanbul → Bremen</p>
+  </div>
+
+  <div id="phase-arriving" class="center-text hidden">
+    <div class="spinner"></div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:#00f0ff;letter-spacing:2px">DESCENDING TO CAMPUS</div>
+    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:8px">Loading photorealistic 3D buildings...</p>
+  </div>
+
+  <div id="phase-drone" class="bottom-panel hidden">
+    <div style="background:rgba(0,20,40,0.85);border:1px solid rgba(0,200,255,0.25);border-radius:14px;padding:14px 22px;backdrop-filter:blur(20px);text-align:center">
+      <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#00f0ff;letter-spacing:3px;margin-bottom:4px">🎥 CONSTRUCTOR UNIVERSITY — DRONE VIEW</div>
+      <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:4px">Google Photorealistic 3D Tiles · Bremen, Germany</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px">
+        <div style="width:7px;height:7px;border-radius:4px;background:#ff0044" class="pulse"></div>
+        <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:#ff0044;letter-spacing:2px">LIVE</span>
+      </div>
+      <button class="btn btn-blue" style="padding:12px 30px" onclick="showPrograms()">📋 VIEW STUDY PROGRAMS</button>
+    </div>
+  </div>
+
+  <div id="phase-programs" class="panel panel-pink right-panel hidden">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <span style="font-size:28px">🇩🇪</span>
+      <div>
+        <h3 class="title" style="font-size:14px;color:#ff00aa;margin:0">Constructor University</h3>
+        <p style="color:rgba(255,255,255,0.4);font-size:11px;margin:3px 0 0">📍 Bremen, Germany</p>
+      </div>
+    </div>
+    <div class="neon-line"></div>
+    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:12px">
+      <div style="min-width:24px;height:24px;border-radius:12px;background:rgba(255,0,170,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;margin-top:2px">💬</div>
+      <p style="color:rgba(255,255,255,0.55);font-size:12px;margin:0;line-height:1.5;font-style:italic">What would you like to study? Programs at Constructor University:</p>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button class="tab-btn active" id="tabUg" onclick="switchTab('ug')">UNDERGRADUATE</button>
+      <button class="tab-btn" id="tabPg" onclick="switchTab('pg')">POSTGRADUATE</button>
+    </div>
+    <div id="programList"></div>
+    <div class="neon-line"></div>
+    <div class="center-text">
+      <button class="btn btn-cyan" style="padding:10px 26px;border-width:1px" onclick="restart()">← START OVER</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const GOOGLE_KEY = "AIzaSyCDvg77OufOzvBqRqYMThhN0dZC2heEpSQ";
+const CESIUM_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYzE3NzFmNS1jMWMyLTQwN2ItODBkOS1hOTExZGJlZThmMDIiLCJpZCI6NDMxOTQzLCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3Nzg4MzM1MTF9.hrmi81Vw8NYSevYkKIYYgy9ck1sbQLj792m_7MeGRSg";
+
+const CAMPUS = {lat:53.16748, lng:8.65170};
+const PROGRAMS = {
+  ug:["Computer Science","Industrial Engineering & Management","Business Administration","Electrical & Computer Engineering","Psychology & Methods","Biochemistry & Cell Biology"],
+  pg:["Data Engineering","Supply Chain Engineering & Management","Computer Science (MSc)","Productive Adult Longevity"]
+};
+const COUNTRIES = [
+  {n:"Turkey",la:39.93,lo:32.86,f:"🇹🇷"},{n:"Azerbaijan",la:40.41,lo:49.87,f:"🇦🇿"},
+  {n:"Kazakhstan",la:51.17,lo:71.43,f:"🇰🇿"},{n:"Pakistan",la:33.69,lo:73.04,f:"🇵🇰"},
+  {n:"India",la:28.61,lo:77.21,f:"🇮🇳"},{n:"Nigeria",la:9.06,lo:7.49,f:"🇳🇬"},
+  {n:"Egypt",la:30.04,lo:31.24,f:"🇪🇬"},{n:"Iran",la:35.69,lo:51.39,f:"🇮🇷"},
+  {n:"Russia",la:55.76,lo:37.62,f:"🇷🇺"},{n:"Georgia",la:41.72,lo:44.79,f:"🇬🇪"},
+  {n:"Saudi Arabia",la:24.71,lo:46.68,f:"🇸🇦"},{n:"Iraq",la:33.31,lo:44.37,f:"🇮🇶"},
+  {n:"Ukraine",la:50.45,lo:30.52,f:"🇺🇦"},{n:"Uzbekistan",la:41.3,lo:69.28,f:"🇺🇿"},
+  {n:"Morocco",la:33.97,lo:-6.85,f:"🇲🇦"},{n:"Lebanon",la:33.89,lo:35.5,f:"🇱🇧"},
+  {n:"Jordan",la:31.95,lo:35.93,f:"🇯🇴"},{n:"Syria",la:33.51,lo:36.29,f:"🇸🇾"},
+  {n:"China",la:39.9,lo:116.4,f:"🇨🇳"},{n:"South Korea",la:37.57,lo:126.98,f:"🇰🇷"},
+  {n:"Bangladesh",la:23.81,lo:90.41,f:"🇧🇩"},{n:"Indonesia",la:-6.21,lo:106.85,f:"🇮🇩"},
+  {n:"Colombia",la:4.71,lo:-74.07,f:"🇨🇴"},{n:"Mexico",la:19.43,lo:-99.13,f:"🇲🇽"},
+  {n:"Kenya",la:-1.29,lo:36.82,f:"🇰🇪"},{n:"Ghana",la:5.6,lo:-0.19,f:"🇬🇭"},
+  {n:"Brazil",la:-15.79,lo:-47.88,f:"🇧🇷"},{n:"Ethiopia",la:9.02,lo:38.75,f:"🇪🇹"},
+  {n:"Turkmenistan",la:37.95,lo:58.38,f:"🇹🇲"},{n:"Kyrgyzstan",la:42.87,lo:74.59,f:"🇰🇬"},
+];
+
+let viewer, droneActive=false, droneAngle=0, currentTab="ug";
+
+function showError(msg){
+  const el=document.getElementById('error-msg');
+  el.style.display='block';
+  el.innerHTML='<h3 style="margin-bottom:10px">⚠️ Loading Issue</h3><p>'+msg+'</p><p style="margin-top:10px;font-size:12px;color:#aaa">Try refreshing the page (F5) or check your internet connection.</p>';
+}
+
+function showPhase(id){
+  document.querySelectorAll('#overlay > div').forEach(d=>d.classList.add('hidden'));
+  const el=document.getElementById('phase-'+id);
+  if(el)el.classList.remove('hidden');
+}
+
+async function init(){
+  try{
+    Cesium.Ion.defaultAccessToken = CESIUM_TOKEN;
+
+    viewer = new Cesium.Viewer("cesiumContainer",{
+      timeline:false, animation:false, baseLayerPicker:false,
+      geocoder:false, homeButton:false, navigationHelpButton:false,
+      sceneModePicker:false, fullscreenButton:false,
+      selectionIndicator:false, infoBox:false,
+      globe:false
+    });
+
+    viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#020010');
+
+    // Load Google 3D Tiles
+    console.log("Loading Google 3D Tiles...");
+    const tileset = await Cesium.Cesium3DTileset.fromUrl(
+      "https://tile.googleapis.com/v1/3dtiles/root.json?key=" + GOOGLE_KEY
+    );
+    viewer.scene.primitives.add(tileset);
+    console.log("Google 3D Tiles loaded successfully!");
+
+    // Start camera over Turkey
+    viewer.camera.setView({
+      destination: Cesium.Cartesian3.fromDegrees(32, 38, 12000000),
+      orientation:{heading:0, pitch:Cesium.Math.toRadians(-90), roll:0}
+    });
+
+    // Gentle zoom in
+    setTimeout(()=>{
+      viewer.camera.flyTo({
+        destination:Cesium.Cartesian3.fromDegrees(32,39,6000000),
+        orientation:{heading:0,pitch:Cesium.Math.toRadians(-80),roll:0},
+        duration:4
+      });
+    },1000);
+
+    // Drone orbit tick
+    viewer.clock.onTick.addEventListener(()=>{
+      if(droneActive){
+        droneAngle+=0.12;
+        const h=Cesium.Math.toRadians(droneAngle);
+        const p=Cesium.Math.toRadians(-22);
+        const center=Cesium.Cartesian3.fromDegrees(CAMPUS.lng,CAMPUS.lat,15);
+        viewer.camera.lookAt(center,new Cesium.HeadingPitchRange(h,p,400));
+      }
+    });
+
+  }catch(e){
+    console.error("Init error:", e);
+    showError("Could not initialize 3D viewer: "+e.message);
+  }
+}
+
+function startFlow(){
+  showPhase('selectHome');
+  renderList();
+  viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(32,39,4000000),duration:2});
+}
+
+function renderList(filter=''){
+  const el=document.getElementById('homeList');
+  const f=filter.toLowerCase();
+  el.innerHTML=COUNTRIES.filter(c=>c.n.toLowerCase().includes(f))
+    .map(c=>`<button class="country-btn" onclick="pickHome('${c.n}',${c.la},${c.lo},'${c.f}')"><span style="font-size:20px">${c.f}</span><span>${c.n}</span></button>`).join('');
+}
+
+function filterCountries(){renderList(document.getElementById('homeSearch').value);}
+
+function pickHome(name,lat,lng,flag){
+  document.getElementById('homeFlag').textContent=flag;
+  document.getElementById('homeName').textContent=name.toUpperCase();
+  showPhase('atHome');
+  viewer.camera.flyTo({
+    destination:Cesium.Cartesian3.fromDegrees(lng,lat,1500000),
+    orientation:{heading:0,pitch:Cesium.Math.toRadians(-55),roll:0},
+    duration:2.5,
+    complete:()=>setTimeout(()=>showPhase('selectDest'),1500)
+  });
+}
+
+function flyToBremen(){
+  showPhase('flying');
+  let prog=0;
+  const bar=document.getElementById('flightBar');
+  const iv=setInterval(()=>{prog+=0.8;bar.style.width=Math.min(prog,100)+'%';if(prog>=100)clearInterval(iv);},50);
+
+  // Step 1: Rise and fly over Europe
+  viewer.camera.flyTo({
+    destination:Cesium.Cartesian3.fromDegrees(15,48,2500000),
+    orientation:{heading:0,pitch:Cesium.Math.toRadians(-65),roll:0},
+    duration:2.5,
+    complete:()=>{
+      // Step 2: Approach Bremen from high
+      viewer.camera.flyTo({
+        destination:Cesium.Cartesian3.fromDegrees(CAMPUS.lng,CAMPUS.lat,40000),
+        orientation:{heading:Cesium.Math.toRadians(15),pitch:Cesium.Math.toRadians(-40),roll:0},
+        duration:2.5,
+        complete:()=>{
+          showPhase('arriving');
+          // Step 3: Descend to campus
+          viewer.camera.flyTo({
+            destination:Cesium.Cartesian3.fromDegrees(CAMPUS.lng+0.004,CAMPUS.lat-0.003,600),
+            orientation:{heading:Cesium.Math.toRadians(-20),pitch:Cesium.Math.toRadians(-18),roll:0},
+            duration:3.5,
+            complete:()=>{
+              droneActive=true;
+              droneAngle=0;
+              showPhase('drone');
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+function showPrograms(){
+  document.getElementById('phase-programs').classList.remove('hidden');
+  renderPrograms();
+}
+
+function renderPrograms(){
+  document.getElementById('programList').innerHTML=
+    PROGRAMS[currentTab].map(p=>'<div class="prog-item">'+p+'</div>').join('');
+}
+
+function switchTab(t){
+  currentTab=t;
+  document.getElementById('tabUg').className='tab-btn'+(t==='ug'?' active':'');
+  document.getElementById('tabPg').className='tab-btn'+(t==='pg'?' active':'');
+  renderPrograms();
+}
+
+function restart(){
+  droneActive=false;
+  try{viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);}catch(e){}
+  showPhase('welcome');
+  currentTab='ug';
+  document.getElementById('homeSearch').value='';
+  viewer.camera.flyTo({
+    destination:Cesium.Cartesian3.fromDegrees(32,38,12000000),
+    orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0},
+    duration:3
+  });
+}
+
+// Start
+init();
+</script>
+</body>
+</html>
