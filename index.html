@@ -13,6 +13,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
 #cesiumContainer{position:absolute;inset:0}
 .cesium-viewer-toolbar,.cesium-viewer-fullscreenContainer,.cesium-viewer-vrContainer,.cesium-viewer-geocoderContainer,.cesium-viewer-infoBoxContainer,.cesium-viewer-selectionIndicatorContainer,.cesium-viewer-animationContainer,.cesium-viewer-timelineContainer,.cesium-viewer-bottom{display:none!important}
 .cesium-widget-credits{font-size:9px!important;opacity:0.4!important}
+#loadScreen{position:absolute;inset:0;background:#010005;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;transition:opacity 1s}
+#loadScreen.fade{opacity:0;pointer-events:none}
+.spinner{width:44px;height:44px;border:3px solid rgba(0,200,255,0.15);border-top:3px solid #00f0ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
 #overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:100;font-family:'Exo 2',sans-serif}
 .panel{pointer-events:auto;background:rgba(3,3,20,0.85);border:1px solid rgba(0,200,255,0.2);border-radius:18px;padding:26px 28px;backdrop-filter:blur(24px);max-width:440px;width:90%;max-height:78vh;overflow-y:auto;animation:slideUp .5s}
 .panel-pink{border-color:rgba(255,0,170,0.25)}
@@ -40,13 +43,22 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,200,255,.2);border-radius:10px}
 </style>
 </head>
 <body>
+
+<!-- LOADING SCREEN -->
+<div id="loadScreen">
+  <div class="spinner"></div>
+  <div style="font-family:'Orbitron',sans-serif;font-size:14px;color:#00f0ff;letter-spacing:3px;margin-bottom:8px">STUDY ABROAD</div>
+  <div style="color:rgba(255,255,255,0.4);font-size:12px">Initializing 3D globe...</div>
+</div>
+
 <div id="cesiumContainer"></div>
 <div id="overlay">
-  <div id="phase-welcome" class="center-text" style="animation:fadeIn 1s">
+  <div id="phase-welcome" class="center-text hidden">
     <div style="font-size:12px;font-family:'Orbitron',sans-serif;letter-spacing:6px;color:rgba(0,240,255,0.45);margin-bottom:12px">YOUR FUTURE AWAITS</div>
     <h1 style="font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:#fff;letter-spacing:3px;text-shadow:0 0 40px rgba(0,200,255,0.4)">STUDY<span style="color:#00f0ff"> ABROAD</span></h1>
     <p style="color:rgba(255,255,255,0.4);font-size:15px;font-weight:300;margin:12px auto 28px;max-width:360px">Explore world-class universities with photorealistic 3D campus tours</p>
@@ -87,6 +99,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
     <div class="center-text"><button class="btn btn-cyan" style="padding:10px 26px;border-width:1px" onclick="restart()">← START OVER</button></div>
   </div>
 </div>
+
 <script>
 const GK="AIzaSyCDvg77OufOzvBqRqYMThhN0dZC2heEpSQ";
 const CT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYzE3NzFmNS1jMWMyLTQwN2ItODBkOS1hOTExZGJlZThmMDIiLCJpZCI6NDMxOTQzLCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3Nzg4MzM1MTF9.hrmi81Vw8NYSevYkKIYYgy9ck1sbQLj792m_7MeGRSg";
@@ -106,85 +119,89 @@ const DESTS=[
 
 const CO=[{n:"Turkey",la:39.93,lo:32.86,f:"🇹🇷"},{n:"Azerbaijan",la:40.41,lo:49.87,f:"🇦🇿"},{n:"Kazakhstan",la:51.17,lo:71.43,f:"🇰🇿"},{n:"Pakistan",la:33.69,lo:73.04,f:"🇵🇰"},{n:"India",la:28.61,lo:77.21,f:"🇮🇳"},{n:"Nigeria",la:9.06,lo:7.49,f:"🇳🇬"},{n:"Egypt",la:30.04,lo:31.24,f:"🇪🇬"},{n:"Iran",la:35.69,lo:51.39,f:"🇮🇷"},{n:"Russia",la:55.76,lo:37.62,f:"🇷🇺"},{n:"Georgia",la:41.72,lo:44.79,f:"🇬🇪"},{n:"Saudi Arabia",la:24.71,lo:46.68,f:"🇸🇦"},{n:"Iraq",la:33.31,lo:44.37,f:"🇮🇶"},{n:"Ukraine",la:50.45,lo:30.52,f:"🇺🇦"},{n:"Uzbekistan",la:41.3,lo:69.28,f:"🇺🇿"},{n:"Morocco",la:33.97,lo:-6.85,f:"🇲🇦"},{n:"Lebanon",la:33.89,lo:35.5,f:"🇱🇧"},{n:"Jordan",la:31.95,lo:35.93,f:"🇯🇴"},{n:"Syria",la:33.51,lo:36.29,f:"🇸🇾"},{n:"China",la:39.9,lo:116.4,f:"🇨🇳"},{n:"South Korea",la:37.57,lo:126.98,f:"🇰🇷"},{n:"Bangladesh",la:23.81,lo:90.41,f:"🇧🇩"},{n:"Indonesia",la:-6.21,lo:106.85,f:"🇮🇩"},{n:"Colombia",la:4.71,lo:-74.07,f:"🇨🇴"},{n:"Mexico",la:19.43,lo:-99.13,f:"🇲🇽"},{n:"Kenya",la:-1.29,lo:36.82,f:"🇰🇪"},{n:"Ghana",la:5.6,lo:-0.19,f:"🇬🇭"},{n:"Brazil",la:-15.79,lo:-47.88,f:"🇧🇷"},{n:"Ethiopia",la:9.02,lo:38.75,f:"🇪🇹"},{n:"Turkmenistan",la:37.95,lo:58.38,f:"🇹🇲"},{n:"Kyrgyzstan",la:42.87,lo:74.59,f:"🇰🇬"}];
 
-let viewer,droneActive=false,droneAngle=0,curTab="ug",ents=[],curDest=null;
+let viewer,droneActive=false,droneAngle=0,curTab="ug",ents=[],curDest=null,google3dTileset=null;
 
 function getBearing(lat1,lng1,lat2,lng2){
   const dL=(lng2-lng1)*Math.PI/180,a=lat1*Math.PI/180,b=lat2*Math.PI/180;
   return(Math.atan2(Math.sin(dL)*Math.cos(b),Math.cos(a)*Math.sin(b)-Math.sin(a)*Math.cos(b)*Math.cos(dL))*180/Math.PI+360)%360;
 }
 
-/* ═══ PLANE ICON: actual airplane shape from top view ═══ */
 function makePlane(){
   const c=document.createElement('canvas');c.width=80;c.height=80;const x=c.getContext('2d');
-  x.translate(40,40);
-  // Glow
-  x.shadowColor='#00ff88';x.shadowBlur=10;
-  x.fillStyle='#ffffff';x.strokeStyle='#00ff88';x.lineWidth=1;
-  // Fuselage
+  x.translate(40,40);x.shadowColor='#00ff88';x.shadowBlur=10;x.fillStyle='#ffffff';
   x.beginPath();x.moveTo(0,-32);x.bezierCurveTo(5,-28,5,28,0,32);x.bezierCurveTo(-5,28,-5,-28,0,-32);x.fill();
-  // Wings
   x.beginPath();x.moveTo(-3,-4);x.lineTo(-28,6);x.lineTo(-28,10);x.lineTo(-3,4);x.fill();
   x.beginPath();x.moveTo(3,-4);x.lineTo(28,6);x.lineTo(28,10);x.lineTo(3,4);x.fill();
-  // Tail wings
   x.beginPath();x.moveTo(-2,24);x.lineTo(-14,30);x.lineTo(-14,33);x.lineTo(-2,28);x.fill();
   x.beginPath();x.moveTo(2,24);x.lineTo(14,30);x.lineTo(14,33);x.lineTo(2,28);x.fill();
-  // Cockpit
-  x.shadowBlur=0;x.fillStyle='#00ddff';
-  x.beginPath();x.ellipse(0,-24,2.5,5,0,0,Math.PI*2);x.fill();
-  return c;
-}
-
-function makePin(){
-  const c=document.createElement('canvas');c.width=32;c.height=44;const x=c.getContext('2d');
-  x.shadowColor='#ff00aa';x.shadowBlur=10;x.fillStyle='#ff00aa';
-  x.beginPath();x.arc(16,16,12,0,Math.PI*2);x.fill();
-  x.beginPath();x.moveTo(10,26);x.lineTo(16,42);x.lineTo(22,26);x.fill();
-  x.shadowBlur=0;x.fillStyle='#fff';x.beginPath();x.arc(16,16,5,0,Math.PI*2);x.fill();
+  x.shadowBlur=0;x.fillStyle='#00ddff';x.beginPath();x.ellipse(0,-24,2.5,5,0,0,Math.PI*2);x.fill();
   return c;
 }
 
 function makeArc(start,end,steps){
   const pts=[],lats=[],lngs=[];
-  for(let i=0;i<=steps;i++){
-    const t=i/steps,lat=start.lat+(end.lat-start.lat)*t,lng=start.lng+(end.lng-start.lng)*t;
-    const alt=35000*Math.sin(t*Math.PI)+200;
-    lats.push(lat);lngs.push(lng);
-    pts.push(Cesium.Cartesian3.fromDegrees(lng,lat,Math.max(alt,200)));
-  }
+  for(let i=0;i<=steps;i++){const t=i/steps;const lat=start.lat+(end.lat-start.lat)*t;const lng=start.lng+(end.lng-start.lng)*t;
+    lats.push(lat);lngs.push(lng);pts.push(Cesium.Cartesian3.fromDegrees(lng,lat,Math.max(35000*Math.sin(t*Math.PI)+200,200)));}
   return{pts,lats,lngs};
 }
 
 function showPhase(id){document.querySelectorAll('#overlay > div').forEach(d=>d.classList.add('hidden'));const e=document.getElementById('phase-'+id);if(e)e.classList.remove('hidden');}
 function cleanup(){ents.forEach(e=>{try{viewer.entities.remove(e)}catch(x){}});ents=[];}
 
+/* ═══ Load Google 3D Tiles on demand ═══ */
+async function loadGoogle3D(){
+  if(google3dTileset)return; // already loaded
+  try{
+    google3dTileset=await Cesium.Cesium3DTileset.fromUrl("https://tile.googleapis.com/v1/3dtiles/root.json?key="+GK);
+    viewer.scene.primitives.add(google3dTileset);
+  }catch(e){console.error("Google 3D Tiles failed:",e);}
+}
+
+function removeGoogle3D(){
+  if(google3dTileset){
+    viewer.scene.primitives.remove(google3dTileset);
+    google3dTileset=null;
+  }
+}
+
+/* ═══ INIT: lightweight globe first (no Google tiles) ═══ */
 async function init(){
   try{
     Cesium.Ion.defaultAccessToken=CT;
-    viewer=new Cesium.Viewer("cesiumContainer",{timeline:false,animation:false,baseLayerPicker:false,geocoder:false,homeButton:false,navigationHelpButton:false,sceneModePicker:false,fullscreenButton:false,selectionIndicator:false,infoBox:false,globe:false});
+    viewer=new Cesium.Viewer("cesiumContainer",{
+      timeline:false,animation:false,baseLayerPicker:false,geocoder:false,
+      homeButton:false,navigationHelpButton:false,sceneModePicker:false,
+      fullscreenButton:false,selectionIndicator:false,infoBox:false,
+      // globe: TRUE for fast loading with default satellite imagery
+      globe:true
+    });
+    viewer.scene.globe.enableLighting=false;
     viewer.scene.backgroundColor=Cesium.Color.fromCssColorString('#020010');
-    viewer.scene.primitives.add(await Cesium.Cesium3DTileset.fromUrl("https://tile.googleapis.com/v1/3dtiles/root.json?key="+GK));
+
     viewer.camera.setView({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0}});
-    setTimeout(()=>viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,37,5000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-82),roll:0},duration:4}),1000);
+
+    // Hide loading screen, show welcome
+    document.getElementById('loadScreen').classList.add('fade');
+    setTimeout(()=>{document.getElementById('loadScreen').style.display='none';showPhase('welcome');},1000);
+
+    setTimeout(()=>viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,37,5000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-82),roll:0},duration:4}),1500);
+
+    // Drone tick
     viewer.clock.onTick.addEventListener(()=>{
       if(droneActive&&curDest){droneAngle+=0.12;viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,15),new Cesium.HeadingPitchRange(Cesium.Math.toRadians(droneAngle),Cesium.Math.toRadians(-22),400));}
     });
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);document.getElementById('loadScreen').innerHTML='<p style="color:#ff4444">'+e.message+'</p>';}
 }
 
 function startFlow(){showPhase('selectHome');renderList();viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,36,3000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-80),roll:0},duration:2});}
 function renderList(f){f=f||'';document.getElementById('homeList').innerHTML=CO.filter(c=>c.n.toLowerCase().includes(f.toLowerCase())).map(c=>'<button class="country-btn" onclick="pickHome(\''+c.n+'\','+c.la+','+c.lo+',\''+c.f+'\')"><span style="font-size:20px">'+c.f+'</span><span>'+c.n+'</span></button>').join('');}
 function filterCountries(){renderList(document.getElementById('homeSearch').value);}
 function pickHome(n,lat,lng,f){
-  document.getElementById('homeFlag').textContent=f;
-  document.getElementById('homeName').textContent=n.toUpperCase();
+  document.getElementById('homeFlag').textContent=f;document.getElementById('homeName').textContent=n.toUpperCase();
   showPhase('atHome');
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(lng,lat-5,1800000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-70),roll:0},duration:2.5,complete:()=>setTimeout(()=>{showPhase('selectDest');renderDests();},1500)});
 }
-function renderDests(){
-  document.getElementById('destList').innerHTML=DESTS.map((d,i)=>
-    '<button class="dest-btn" onclick="selectDest('+i+')"><span style="font-size:30px">'+d.flag+'</span><div><div style="font-weight:600;font-size:14px">'+d.country+'</div><div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">'+d.uni+' · '+d.city+'</div></div></button>'
-  ).join('');
-}
+function renderDests(){document.getElementById('destList').innerHTML=DESTS.map((d,i)=>'<button class="dest-btn" onclick="selectDest('+i+')"><span style="font-size:30px">'+d.flag+'</span><div><div style="font-weight:600;font-size:14px">'+d.country+'</div><div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">'+d.uni+' · '+d.city+'</div></div></button>').join('');}
 function selectDest(idx){curDest=DESTS[idx];beginJourney();}
 
 /* ═══ FLIGHT ═══ */
@@ -195,64 +212,55 @@ function beginJourney(){
   const arc=makeArc(ORIGIN,curDest.campus,200);
   const greenTrail=[];
 
-  // Blue planned route
   ents.push(viewer.entities.add({polyline:{positions:arc.pts,width:2,material:new Cesium.PolylineGlowMaterialProperty({glowPower:0.2,color:Cesium.Color.fromCssColorString('#0066ff')})}}));
-  // Green trail
   ents.push(viewer.entities.add({polyline:{positions:new Cesium.CallbackProperty(()=>greenTrail,false),width:5,material:new Cesium.PolylineGlowMaterialProperty({glowPower:0.5,color:Cesium.Color.fromCssColorString('#00ff88')})}}));
 
-  // Plane entity
   const plane=viewer.entities.add({position:arc.pts[0],billboard:{image:makePlane(),scale:1.2,verticalOrigin:Cesium.VerticalOrigin.CENTER,rotation:0,disableDepthTestDistance:Number.POSITIVE_INFINITY}});
   ents.push(plane);
 
-  // Camera: straight down, high enough to see FULL arc at all times
+  // Camera straight down to see full arc
   const midLat=(ORIGIN.lat+curDest.campus.lat)/2;
   const midLng=(ORIGIN.lng+curDest.campus.lng)/2;
   const dist=Math.sqrt(Math.pow(curDest.campus.lat-ORIGIN.lat,2)+Math.pow(curDest.campus.lng-ORIGIN.lng,2));
-  const camAlt=Math.max(dist*150000,2000000);
+  const camAlt=Math.max(dist*160000,2200000);
+  viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(midLng,midLat,camAlt),orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0},duration:2.5});
 
-  viewer.camera.flyTo({
-    destination:Cesium.Cartesian3.fromDegrees(midLng,midLat,camAlt),
-    orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0},
-    duration:2.5
-  });
+  // Start preloading Google 3D Tiles in background during flight
+  loadGoogle3D();
 
   let step=0;
   const iv=setInterval(()=>{
     if(step>=arc.pts.length){clearInterval(iv);zoomToCampus(plane);return;}
-    plane.position=arc.pts[step];
-    greenTrail.push(arc.pts[step]);
+    plane.position=arc.pts[step];greenTrail.push(arc.pts[step]);
+    if(step>0){plane.billboard.rotation=Cesium.Math.toRadians(360-getBearing(arc.lats[step-1],arc.lngs[step-1],arc.lats[step],arc.lngs[step]));}
 
-    // Rotate plane parallel to the path
-    if(step>0){
-      const bearing=getBearing(arc.lats[step-1],arc.lngs[step-1],arc.lats[step],arc.lngs[step]);
-      plane.billboard.rotation=Cesium.Math.toRadians(360-bearing);
-    }
-
-    // At 90%: switch to lookAt mode — destination stays centered from now on
+    // At 90%: update HUD text
     if(step===Math.floor(arc.pts.length*0.90)){
       document.getElementById('hudLabel').textContent='🛬 ARRIVING AT '+curDest.city.toUpperCase();
     }
-
     step++;
   },45);
 }
 
+/* ═══ TV VIEW ZOOM: destination always centered ═══ */
 function zoomToCampus(plane){
   viewer.entities.remove(plane);ents=ents.filter(e=>e!==plane);
 
-  // "TV VIEW" zoom: campus stays LOCKED in center, camera smoothly zooms in
-  let range=800000; // start at 800km
-  let pitch=-45;
-  let heading=droneAngle||0;
-  document.getElementById('hudLabel').textContent='🎥 '+curDest.uni.toUpperCase();
+  // Hide default globe, Google 3D takes over for campus detail
+  viewer.scene.globe.show=false;
+
+  let range=800000;
+  let pitch=-50;
+  let heading=0;
+
+  document.getElementById('hudLabel').textContent='🎥 ZOOMING TO '+curDest.uni.toUpperCase();
 
   const zoomIv=setInterval(()=>{
-    // Exponential zoom — slows down as it gets closer
-    range*=0.965;
-    heading+=0.15;
-    // Gradually tilt camera as we get closer
-    if(range<50000)pitch=-25;
-    if(range<5000)pitch=-22;
+    range*=0.96;
+    heading+=0.12;
+    if(range<100000)pitch=-35;
+    if(range<10000)pitch=-25;
+    if(range<2000)pitch=-22;
 
     viewer.camera.lookAt(
       Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,15),
@@ -263,7 +271,7 @@ function zoomToCampus(plane){
       clearInterval(zoomIv);
       droneActive=true;droneAngle=heading;
       document.getElementById('droneTitle').textContent='🎥 '+curDest.uni.toUpperCase()+' — DRONE VIEW';
-      document.getElementById('droneSub').textContent='Google Photorealistic 3D Tiles · '+curDest.city+', '+curDest.country;
+      document.getElementById('droneSub').textContent='Google Photorealistic 3D · '+curDest.city+', '+curDest.country;
       showPhase('drone');
     }
   },30);
@@ -282,7 +290,11 @@ function switchTab(t){curTab=t;document.getElementById('tabUg').className='tab-b
 function restart(){
   droneActive=false;curDest=null;
   try{viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);}catch(e){}
-  cleanup();showPhase('welcome');curTab='ug';
+  cleanup();
+  // Show globe again, remove Google 3D
+  viewer.scene.globe.show=true;
+  removeGoogle3D();
+  showPhase('welcome');curTab='ug';
   document.getElementById('homeSearch').value='';
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0},duration:3});
 }
