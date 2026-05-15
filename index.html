@@ -228,14 +228,9 @@ function beginJourney(){
       plane.billboard.rotation=Cesium.Math.toRadians(360-bearing);
     }
 
-    // At 90%: start zooming — camera goes to ~1000km south of destination
+    // At 90%: switch to lookAt mode — destination stays centered from now on
     if(step===Math.floor(arc.pts.length*0.90)){
       document.getElementById('hudLabel').textContent='🛬 ARRIVING AT '+curDest.city.toUpperCase();
-      viewer.camera.flyTo({
-        destination:Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat-8,1000000),
-        orientation:{heading:0,pitch:Cesium.Math.toRadians(-55),roll:0},
-        duration:4
-      });
     }
 
     step++;
@@ -245,37 +240,33 @@ function beginJourney(){
 function zoomToCampus(plane){
   viewer.entities.remove(plane);ents=ents.filter(e=>e!==plane);
 
-  // Add campus label — clamped to ground so it stays fixed
-  const pin=viewer.entities.add({
-    position:Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,0),
-    billboard:{image:makePin(),verticalOrigin:Cesium.VerticalOrigin.BOTTOM,
-      heightReference:Cesium.HeightReference.CLAMP_TO_GROUND,
-      disableDepthTestDistance:Number.POSITIVE_INFINITY,
-      scaleByDistance:new Cesium.NearFarScalar(100,1.5,3000,0.5)},
-    label:{text:curDest.uni,font:'bold 14px Orbitron',
-      fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.BLACK,outlineWidth:3,
-      style:Cesium.LabelStyle.FILL_AND_OUTLINE,
-      verticalOrigin:Cesium.VerticalOrigin.BOTTOM,
-      pixelOffset:new Cesium.Cartesian2(0,-50),
-      heightReference:Cesium.HeightReference.CLAMP_TO_GROUND,
-      disableDepthTestDistance:Number.POSITIVE_INFINITY,
-      scaleByDistance:new Cesium.NearFarScalar(100,1.3,3000,0.4),
-      showBackground:true,backgroundColor:new Cesium.Color(0,0,0,0.7),
-      backgroundPadding:new Cesium.Cartesian2(8,5)}
-  });
-  ents.push(pin);
+  // "TV VIEW" zoom: campus stays LOCKED in center, camera smoothly zooms in
+  let range=800000; // start at 800km
+  let pitch=-45;
+  let heading=droneAngle||0;
+  document.getElementById('hudLabel').textContent='🎥 '+curDest.uni.toUpperCase();
 
-  // Zoom from 1000km south down to campus
-  viewer.camera.flyTo({
-    destination:Cesium.Cartesian3.fromDegrees(curDest.campus.lng+0.003,curDest.campus.lat-0.002,500),
-    orientation:{heading:Cesium.Math.toRadians(-20),pitch:Cesium.Math.toRadians(-18),roll:0},
-    duration:4,complete:()=>{setTimeout(()=>{
-      droneActive=true;droneAngle=0;
+  const zoomIv=setInterval(()=>{
+    // Exponential zoom — slows down as it gets closer
+    range*=0.965;
+    heading+=0.15;
+    // Gradually tilt camera as we get closer
+    if(range<50000)pitch=-25;
+    if(range<5000)pitch=-22;
+
+    viewer.camera.lookAt(
+      Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,15),
+      new Cesium.HeadingPitchRange(Cesium.Math.toRadians(heading),Cesium.Math.toRadians(pitch),range)
+    );
+
+    if(range<=420){
+      clearInterval(zoomIv);
+      droneActive=true;droneAngle=heading;
       document.getElementById('droneTitle').textContent='🎥 '+curDest.uni.toUpperCase()+' — DRONE VIEW';
       document.getElementById('droneSub').textContent='Google Photorealistic 3D Tiles · '+curDest.city+', '+curDest.country;
       showPhase('drone');
-    },800);}
-  });
+    }
+  },30);
 }
 
 function showPrograms(){
