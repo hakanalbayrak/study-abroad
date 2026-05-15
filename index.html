@@ -10,20 +10,20 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:'Exo 2',sans-serif}
-#cesiumContainer{position:absolute;inset:0;width:100%;height:100%}
+#cesiumContainer{position:absolute;inset:0}
 .cesium-viewer-toolbar,.cesium-viewer-fullscreenContainer,.cesium-viewer-vrContainer,.cesium-viewer-geocoderContainer,.cesium-viewer-infoBoxContainer,.cesium-viewer-selectionIndicatorContainer,.cesium-viewer-animationContainer,.cesium-viewer-timelineContainer,.cesium-viewer-bottom{display:none!important}
 .cesium-widget-credits{font-size:9px!important;opacity:0.4!important}
 #overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:100;font-family:'Exo 2',sans-serif}
-#error-msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ff4444;font-size:16px;text-align:center;z-index:200;display:none;background:rgba(0,0,0,0.8);padding:30px;border-radius:12px;max-width:500px}
+#error-msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ff4444;font-size:14px;text-align:center;z-index:200;display:none;background:rgba(0,0,0,0.85);padding:24px;border-radius:12px;max-width:400px}
 .panel{pointer-events:auto;background:rgba(3,3,20,0.85);border:1px solid rgba(0,200,255,0.2);border-radius:18px;padding:26px 28px;backdrop-filter:blur(24px);max-width:440px;width:90%;max-height:78vh;overflow-y:auto;animation:slideUp 0.5s}
 .panel-pink{border-color:rgba(255,0,170,0.25)}
 .title{font-family:'Orbitron',sans-serif;font-weight:700;letter-spacing:2px;text-shadow:0 0 20px rgba(0,240,255,0.3)}
 .btn{pointer-events:auto;font-family:'Orbitron',sans-serif;font-weight:600;font-size:11px;letter-spacing:2px;border-radius:30px;padding:12px 32px;cursor:pointer;transition:all 0.3s;border:none;color:#fff}
-.btn-cyan{background:transparent;color:#00f0ff;border:2px solid rgba(0,240,255,0.4);box-shadow:0 0 30px rgba(0,200,255,0.15)}
+.btn-cyan{background:transparent;color:#00f0ff;border:2px solid rgba(0,240,255,0.4)}
 .btn-cyan:hover{background:rgba(0,240,255,0.1)}
-.btn-pink{background:linear-gradient(135deg,#ff00aa,#cc0066);box-shadow:0 0 30px rgba(255,0,170,0.3)}
-.btn-pink:hover{box-shadow:0 0 50px rgba(255,0,170,0.5)}
-.btn-blue{background:linear-gradient(135deg,#00d4ff,#0066ff);box-shadow:0 0 25px rgba(0,150,255,0.3)}
+.btn-pink{background:linear-gradient(135deg,#ff00aa,#cc0066)}
+.btn-pink:hover{box-shadow:0 0 40px rgba(255,0,170,0.5)}
+.btn-blue{background:linear-gradient(135deg,#00d4ff,#0066ff)}
 .btn-blue:hover{box-shadow:0 0 40px rgba(0,150,255,0.5)}
 .country-btn{pointer-events:auto;display:flex;align-items:center;gap:10px;width:100%;background:rgba(0,200,255,0.04);border:1px solid rgba(0,200,255,0.1);border-radius:9px;padding:9px 12px;cursor:pointer;color:#fff;font-family:'Exo 2',sans-serif;font-size:14px;transition:all 0.2s}
 .country-btn:hover{background:rgba(0,200,255,0.12);border-color:rgba(0,200,255,0.4)}
@@ -32,18 +32,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
 .neon-line{height:1px;background:linear-gradient(90deg,transparent,#ff00aa,transparent);margin:16px 0}
 .prog-item{padding:9px 12px;background:rgba(255,255,255,0.04);border-radius:7px;border-left:3px solid #ff00aa;color:rgba(255,255,255,0.8);font-size:12px;margin-bottom:6px}
 .tab-btn{padding:7px 18px;border-radius:18px;cursor:pointer;font-size:10px;font-family:'Orbitron',sans-serif;font-weight:600;letter-spacing:1.5px;border:none;pointer-events:auto;transition:all 0.3s;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.06)}
-.tab-btn.active{background:linear-gradient(135deg,#ff00aa,#cc0088);color:#fff;box-shadow:0 0 15px rgba(255,0,170,0.3)}
+.tab-btn.active{background:linear-gradient(135deg,#ff00aa,#cc0088);color:#fff}
 .hidden{display:none!important}
 .center-text{text-align:center}
 .bottom-panel{position:absolute;bottom:30px;left:50%;transform:translateX(-50%)}
 .right-panel{position:absolute;right:20px;top:50%;transform:translateY(-50%);max-width:360px;width:85%;max-height:75vh}
-.flight-bar{width:260px;height:4px;background:rgba(255,255,255,0.08);border-radius:3px;margin:16px auto;overflow:hidden}
-.flight-fill{height:100%;background:linear-gradient(90deg,#00ff88,#00ffcc);border-radius:3px;transition:width 0.1s;box-shadow:0 0 12px rgba(0,255,136,0.6)}
+.status-hud{position:absolute;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,10,20,0.8);border:1px solid rgba(0,255,136,0.3);border-radius:12px;padding:10px 20px;backdrop-filter:blur(16px);text-align:center;pointer-events:none}
 .pulse{animation:pulse 1s infinite}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,200,255,0.2);border-radius:10px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,200,255,.2);border-radius:10px}
 </style>
 </head>
 <body>
@@ -73,23 +72,20 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
       <span style="font-size:36px">🇩🇪</span>
       <div><div style="font-weight:600;font-size:16px;color:#fff">Constructor University</div><div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">Bremen, Germany</div></div>
     </div>
-    <button class="btn btn-pink" style="padding:14px 40px;font-size:12px" onclick="flyToBremen()">✈ FLY TO BREMEN</button>
+    <button class="btn btn-pink" style="padding:14px 40px;font-size:12px" onclick="beginJourney()">✈ FLY TO BREMEN</button>
   </div>
-  <div id="phase-flying" class="center-text hidden">
-    <div id="flyLabel" style="font-family:'Orbitron',sans-serif;font-size:14px;color:#00ff88;letter-spacing:3px">✈ FLYING TO GERMANY</div>
-    <div class="flight-bar"><div class="flight-fill" id="flightBar" style="width:0%"></div></div>
-    <p id="flySubLabel" style="color:rgba(255,255,255,0.35);font-size:12px">Istanbul → Bremen Airport</p>
+  <!-- Flight HUD (small top bar during animation) -->
+  <div id="phase-flightHud" class="status-hud hidden">
+    <div id="hudLabel" style="font-family:'Orbitron',sans-serif;font-size:11px;color:#00ff88;letter-spacing:2px">✈ ISTANBUL → BREMEN</div>
   </div>
-  <div id="phase-walking" class="center-text hidden">
-    <div style="font-family:'Orbitron',sans-serif;font-size:14px;color:#00ff88;letter-spacing:3px">🎓 HEADING TO CAMPUS</div>
-    <div class="flight-bar"><div class="flight-fill" id="walkBar" style="width:0%"></div></div>
-    <p style="color:rgba(255,255,255,0.35);font-size:12px">Bremen Airport → Constructor University</p>
+  <!-- Walking HUD -->
+  <div id="phase-walkHud" class="status-hud hidden">
+    <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#00ff88;letter-spacing:2px">🎓 BREMEN AIRPORT → CAMPUS</div>
   </div>
   <div id="phase-drone" class="bottom-panel hidden">
     <div style="background:rgba(0,20,40,0.85);border:1px solid rgba(0,200,255,0.25);border-radius:14px;padding:14px 22px;backdrop-filter:blur(20px);text-align:center">
       <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#00f0ff;letter-spacing:3px;margin-bottom:4px">🎥 CONSTRUCTOR UNIVERSITY — DRONE VIEW</div>
-      <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:4px">Google Photorealistic 3D Tiles · Bremen, Germany</div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px"><div style="width:7px;height:7px;border-radius:4px;background:#ff0044" class="pulse"></div><span style="font-family:'Orbitron',sans-serif;font-size:10px;color:#ff0044;letter-spacing:2px">LIVE</span></div>
+      <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:8px">Google Photorealistic 3D Tiles · Bremen, Germany</div>
       <button class="btn btn-blue" style="padding:12px 30px" onclick="showPrograms()">📋 VIEW STUDY PROGRAMS</button>
     </div>
   </div>
@@ -106,18 +102,109 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
 <script>
 const GK="AIzaSyCDvg77OufOzvBqRqYMThhN0dZC2heEpSQ";
 const CT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYzE3NzFmNS1jMWMyLTQwN2ItODBkOS1hOTExZGJlZThmMDIiLCJpZCI6NDMxOTQzLCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3Nzg4MzM1MTF9.hrmi81Vw8NYSevYkKIYYgy9ck1sbQLj792m_7MeGRSg";
-const IST={lat:41.26,lng:28.74},APT={lat:53.0475,lng:8.7867},CAM={lat:53.16748,lng:8.65170};
-const PRG={ug:["Computer Science","Industrial Engineering & Management","Business Administration","Electrical & Computer Engineering","Psychology & Methods","Biochemistry & Cell Biology"],pg:["Data Engineering","Supply Chain Engineering & Management","Computer Science (MSc)","Productive Adult Longevity"]};
-const CO=[{n:"Turkey",la:39.93,lo:32.86,f:"🇹🇷"},{n:"Azerbaijan",la:40.41,lo:49.87,f:"🇦🇿"},{n:"Kazakhstan",la:51.17,lo:71.43,f:"🇰🇿"},{n:"Pakistan",la:33.69,lo:73.04,f:"🇵🇰"},{n:"India",la:28.61,lo:77.21,f:"🇮🇳"},{n:"Nigeria",la:9.06,lo:7.49,f:"🇳🇬"},{n:"Egypt",la:30.04,lo:31.24,f:"🇪🇬"},{n:"Iran",la:35.69,lo:51.39,f:"🇮🇷"},{n:"Russia",la:55.76,lo:37.62,f:"🇷🇺"},{n:"Georgia",la:41.72,lo:44.79,f:"🇬🇪"},{n:"Saudi Arabia",la:24.71,lo:46.68,f:"🇸🇦"},{n:"Iraq",la:33.31,lo:44.37,f:"🇮🇶"},{n:"Ukraine",la:50.45,lo:30.52,f:"🇺🇦"},{n:"Uzbekistan",la:41.3,lo:69.28,f:"🇺🇿"},{n:"Morocco",la:33.97,lo:-6.85,f:"🇲🇦"},{n:"Lebanon",la:33.89,lo:35.5,f:"🇱🇧"},{n:"Jordan",la:31.95,lo:35.93,f:"🇯🇴"},{n:"Syria",la:33.51,lo:36.29,f:"🇸🇾"},{n:"China",la:39.9,lo:116.4,f:"🇨🇳"},{n:"South Korea",la:37.57,lo:126.98,f:"🇰🇷"},{n:"Bangladesh",la:23.81,lo:90.41,f:"🇧🇩"},{n:"Indonesia",la:-6.21,lo:106.85,f:"🇮🇩"},{n:"Colombia",la:4.71,lo:-74.07,f:"🇨🇴"},{n:"Mexico",la:19.43,lo:-99.13,f:"🇲🇽"},{n:"Kenya",la:-1.29,lo:36.82,f:"🇰🇪"},{n:"Ghana",la:5.6,lo:-0.19,f:"🇬🇭"},{n:"Brazil",la:-15.79,lo:-47.88,f:"🇧🇷"},{n:"Ethiopia",la:9.02,lo:38.75,f:"🇪🇹"},{n:"Turkmenistan",la:37.95,lo:58.38,f:"🇹🇲"},{n:"Kyrgyzstan",la:42.87,lo:74.59,f:"🇰🇬"}];
+
+/* ═══ DESTINATION CONFIG (reusable template) ═══ */
+const ORIGIN_AIRPORT = {lat:41.2615,lng:28.7420}; // Istanbul Airport
+
+const DEST = {
+  airport: {lat:53.0475,lng:8.7867},
+  campus: {lat:53.16748,lng:8.65170},
+  // Road waypoints: airport → campus (approximate road path)
+  roadRoute: [
+    {lat:53.0475,lng:8.7867},  // Airport
+    {lat:53.055,lng:8.785},    // Airport exit road
+    {lat:53.065,lng:8.780},    // A281 highway
+    {lat:53.075,lng:8.775},    // Through Burg-Grambke
+    {lat:53.085,lng:8.770},    // Heading north
+    {lat:53.095,lng:8.760},    // Passing Lesum
+    {lat:53.105,lng:8.745},    // B74 toward Vegesack
+    {lat:53.115,lng:8.725},    // Continuing north
+    {lat:53.125,lng:8.705},    // Approaching Vegesack
+    {lat:53.135,lng:8.685},    // Through Vegesack
+    {lat:53.145,lng:8.670},    // Nearing campus area
+    {lat:53.155,lng:8.660},    // Grohn district
+    {lat:53.163,lng:8.654},    // Campus entrance area
+    {lat:53.16748,lng:8.65170} // Campus center
+  ],
+  uni: "Constructor University",
+  city: "Bremen",
+  country: "Germany",
+  flag: "🇩🇪",
+  programs: {
+    ug:["Computer Science","Industrial Engineering & Management","Business Administration","Electrical & Computer Engineering","Psychology & Methods","Biochemistry & Cell Biology"],
+    pg:["Data Engineering","Supply Chain Engineering & Management","Computer Science (MSc)","Productive Adult Longevity"]
+  }
+};
+
+const COUNTRIES=[{n:"Turkey",la:39.93,lo:32.86,f:"🇹🇷"},{n:"Azerbaijan",la:40.41,lo:49.87,f:"🇦🇿"},{n:"Kazakhstan",la:51.17,lo:71.43,f:"🇰🇿"},{n:"Pakistan",la:33.69,lo:73.04,f:"🇵🇰"},{n:"India",la:28.61,lo:77.21,f:"🇮🇳"},{n:"Nigeria",la:9.06,lo:7.49,f:"🇳🇬"},{n:"Egypt",la:30.04,lo:31.24,f:"🇪🇬"},{n:"Iran",la:35.69,lo:51.39,f:"🇮🇷"},{n:"Russia",la:55.76,lo:37.62,f:"🇷🇺"},{n:"Georgia",la:41.72,lo:44.79,f:"🇬🇪"},{n:"Saudi Arabia",la:24.71,lo:46.68,f:"🇸🇦"},{n:"Iraq",la:33.31,lo:44.37,f:"🇮🇶"},{n:"Ukraine",la:50.45,lo:30.52,f:"🇺🇦"},{n:"Uzbekistan",la:41.3,lo:69.28,f:"🇺🇿"},{n:"Morocco",la:33.97,lo:-6.85,f:"🇲🇦"},{n:"Lebanon",la:33.89,lo:35.5,f:"🇱🇧"},{n:"Jordan",la:31.95,lo:35.93,f:"🇯🇴"},{n:"Syria",la:33.51,lo:36.29,f:"🇸🇾"},{n:"China",la:39.9,lo:116.4,f:"🇨🇳"},{n:"South Korea",la:37.57,lo:126.98,f:"🇰🇷"},{n:"Bangladesh",la:23.81,lo:90.41,f:"🇧🇩"},{n:"Indonesia",la:-6.21,lo:106.85,f:"🇮🇩"},{n:"Colombia",la:4.71,lo:-74.07,f:"🇨🇴"},{n:"Mexico",la:19.43,lo:-99.13,f:"🇲🇽"},{n:"Kenya",la:-1.29,lo:36.82,f:"🇰🇪"},{n:"Ghana",la:5.6,lo:-0.19,f:"🇬🇭"},{n:"Brazil",la:-15.79,lo:-47.88,f:"🇧🇷"},{n:"Ethiopia",la:9.02,lo:38.75,f:"🇪🇹"},{n:"Turkmenistan",la:37.95,lo:58.38,f:"🇹🇲"},{n:"Kyrgyzstan",la:42.87,lo:74.59,f:"🇰🇬"}];
+
 let viewer,droneActive=false,droneAngle=0,curTab="ug",animEnts=[];
 
-function makeIcon(txt,sz,bg){const c=document.createElement('canvas');c.width=sz;c.height=sz;const x=c.getContext('2d');if(bg){x.beginPath();x.arc(sz/2,sz/2,sz/2-2,0,Math.PI*2);x.fillStyle=bg;x.fill();}x.font=sz*0.55+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(txt,sz/2,sz/2+2);return c;}
+/* ═══ PATH GENERATORS ═══ */
+// Half-orbit arc path (high parabolic arc for flights)
+function generateFlightArc(start,end,steps){
+  const pts=[];
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    const lat=start.lat+(end.lat-start.lat)*t;
+    const lng=start.lng+(end.lng-start.lng)*t;
+    // Half-orbit: peak at 40km altitude at midpoint
+    const alt=40000*Math.sin(t*Math.PI)+300;
+    pts.push(Cesium.Cartesian3.fromDegrees(lng,lat,Math.max(alt,300)));
+  }
+  return pts;
+}
 
-function flightPath(s,e,n){const p=[];for(let i=0;i<=n;i++){const t=i/n;p.push({lat:s.lat+(e.lat-s.lat)*t,lng:s.lng+(e.lng-s.lng)*t,alt:Math.max(11000*Math.sin(t*Math.PI),200)});}return p;}
+// Interpolate road waypoints into smooth path
+function generateGroundPath(waypoints,steps){
+  const pts=[];
+  // Calculate total distance
+  let totalDist=0;
+  const dists=[];
+  for(let i=0;i<waypoints.length-1;i++){
+    const d=Math.sqrt(Math.pow(waypoints[i+1].lat-waypoints[i].lat,2)+Math.pow(waypoints[i+1].lng-waypoints[i].lng,2));
+    dists.push(d);totalDist+=d;
+  }
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    let target=t*totalDist,accum=0,segIdx=0;
+    for(let s=0;s<dists.length;s++){
+      if(accum+dists[s]>=target){segIdx=s;target-=accum;break;}
+      accum+=dists[s];
+    }
+    const segT=dists[segIdx]>0?target/dists[segIdx]:0;
+    const a=waypoints[segIdx],b=waypoints[segIdx+1]||a;
+    const lat=a.lat+(b.lat-a.lat)*segT;
+    const lng=a.lng+(b.lng-a.lng)*segT;
+    pts.push(Cesium.Cartesian3.fromDegrees(lng,lat,15));
+  }
+  return pts;
+}
 
-function groundPath(s,e,wp,n){const all=[s,...wp,e];const segs=[];let td=0;for(let i=0;i<all.length-1;i++){const d=Math.sqrt(Math.pow(all[i+1].lat-all[i].lat,2)+Math.pow(all[i+1].lng-all[i].lng,2));segs.push({f:all[i],t:all[i+1],d});td+=d;}const p=[];for(let i=0;i<=n;i++){const t=i/n;let tgt=t*td,acc=0,sg=segs[0];for(const s of segs){if(acc+s.d>=tgt){sg=s;tgt-=acc;break;}acc+=s.d;}const st=sg.d>0?tgt/sg.d:0;p.push({lat:sg.f.lat+(sg.t.lat-sg.f.lat)*st,lng:sg.f.lng+(sg.t.lng-sg.f.lng)*st,alt:20});}return p;}
+/* ═══ ICON MAKERS ═══ */
+function makePlaneIcon(){
+  const c=document.createElement('canvas');c.width=80;c.height=80;
+  const x=c.getContext('2d');
+  x.shadowColor='#00ff88';x.shadowBlur=15;
+  x.fillStyle='#ffffff';x.font='50px sans-serif';
+  x.textAlign='center';x.textBaseline='middle';
+  x.fillText('✈️',40,40);
+  return c;
+}
+function makeStudentIcon(){
+  const c=document.createElement('canvas');c.width=80;c.height=80;
+  const x=c.getContext('2d');
+  x.shadowColor='#00ff88';x.shadowBlur=15;
+  // Green glow circle
+  x.beginPath();x.arc(40,40,32,0,Math.PI*2);x.fillStyle='rgba(0,255,136,0.2)';x.fill();
+  x.strokeStyle='#00ff88';x.lineWidth=2;x.stroke();
+  x.fillStyle='#ffffff';x.font='40px sans-serif';
+  x.textAlign='center';x.textBaseline='middle';
+  x.fillText('🎓',40,40);
+  return c;
+}
 
-function showErr(m){const e=document.getElementById('error-msg');e.style.display='block';e.innerHTML='<p>'+m+'</p>';}
+/* ═══ CORE ═══ */
 function showPhase(id){document.querySelectorAll('#overlay > div').forEach(d=>d.classList.add('hidden'));const e=document.getElementById('phase-'+id);if(e)e.classList.remove('hidden');}
 function cleanup(){animEnts.forEach(e=>{try{viewer.entities.remove(e)}catch(x){}});animEnts=[];}
 
@@ -130,74 +217,180 @@ async function init(){
     viewer.scene.primitives.add(ts);
     viewer.camera.setView({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0}});
     setTimeout(()=>viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,37,5000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-82),roll:0},duration:4}),1000);
-    viewer.clock.onTick.addEventListener(()=>{if(droneActive){droneAngle+=0.12;viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(CAM.lng,CAM.lat,15),new Cesium.HeadingPitchRange(Cesium.Math.toRadians(droneAngle),Cesium.Math.toRadians(-22),400));}});
-  }catch(e){showErr(e.message);}
+    // Drone tick
+    viewer.clock.onTick.addEventListener(()=>{
+      if(droneActive){droneAngle+=0.12;viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(DEST.campus.lng,DEST.campus.lat,15),new Cesium.HeadingPitchRange(Cesium.Math.toRadians(droneAngle),Cesium.Math.toRadians(-22),400));}
+    });
+  }catch(e){const el=document.getElementById('error-msg');el.style.display='block';el.textContent=e.message;}
 }
 
 function startFlow(){showPhase('selectHome');renderList();viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,36,3000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-80),roll:0},duration:2});}
-function renderList(f){f=f||'';const e=document.getElementById('homeList');e.innerHTML=CO.filter(c=>c.n.toLowerCase().includes(f.toLowerCase())).map(c=>'<button class="country-btn" onclick="pickHome(\''+c.n+'\','+c.la+','+c.lo+',\''+c.f+'\')"><span style="font-size:20px">'+c.f+'</span><span>'+c.n+'</span></button>').join('');}
+function renderList(f){f=f||'';document.getElementById('homeList').innerHTML=COUNTRIES.filter(c=>c.n.toLowerCase().includes(f.toLowerCase())).map(c=>'<button class="country-btn" onclick="pickHome(\''+c.n+'\','+c.la+','+c.lo+',\''+c.f+'\')"><span style="font-size:20px">'+c.f+'</span><span>'+c.n+'</span></button>').join('');}
 function filterCountries(){renderList(document.getElementById('homeSearch').value);}
-function pickHome(name,lat,lng,flag){document.getElementById('homeFlag').textContent=flag;document.getElementById('homeName').textContent=name.toUpperCase();showPhase('atHome');viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(lng,lat-3,800000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-75),roll:0},duration:2.5,complete:()=>setTimeout(()=>showPhase('selectDest'),1500)});}
+function pickHome(n,lat,lng,f){document.getElementById('homeFlag').textContent=f;document.getElementById('homeName').textContent=n.toUpperCase();showPhase('atHome');viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(lng,lat-3,800000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-75),roll:0},duration:2.5,complete:()=>setTimeout(()=>showPhase('selectDest'),1500)});}
 
-function flyToBremen(){
-  showPhase('flying');cleanup();
-  const fp=flightPath(IST,APT,120),trail=[];
-  let step=0;
-  const plane=viewer.entities.add({position:Cesium.Cartesian3.fromDegrees(IST.lng,IST.lat,200),billboard:{image:makeIcon('✈️',64),scale:0.7,verticalOrigin:Cesium.VerticalOrigin.CENTER}});
+/* ═══════════════════════════════════════════
+   JOURNEY ANIMATION ENGINE (reusable)
+   ═══════════════════════════════════════════ */
+function beginJourney(){
+  showPhase('flightHud');
+  cleanup();
+
+  // Generate paths
+  const flightPts = generateFlightArc(ORIGIN_AIRPORT, DEST.airport, 150);
+  const groundPts = generateGroundPath(DEST.roadRoute, 120);
+
+  // ── STEP 1: Draw full BLUE flight arc (planned route) ──
+  const blueFlightLine = viewer.entities.add({
+    polyline:{
+      positions: flightPts,
+      width: 2,
+      material: new Cesium.PolylineGlowMaterialProperty({glowPower:0.15, color:Cesium.Color.fromCssColorString('#0055ff')})
+    }
+  });
+  animEnts.push(blueFlightLine);
+
+  // ── GREEN trail (grows as plane flies) ──
+  const greenTrail = [];
+  const greenFlightLine = viewer.entities.add({
+    polyline:{
+      positions: new Cesium.CallbackProperty(()=>greenTrail, false),
+      width: 5,
+      material: new Cesium.PolylineGlowMaterialProperty({glowPower:0.4, color:Cesium.Color.fromCssColorString('#00ff88')})
+    }
+  });
+  animEnts.push(greenFlightLine);
+
+  // ── PLANE entity ──
+  const plane = viewer.entities.add({
+    position: flightPts[0],
+    billboard:{image:makePlaneIcon(), scale:0.6, verticalOrigin:Cesium.VerticalOrigin.CENTER}
+  });
   animEnts.push(plane);
-  const trailEnt=viewer.entities.add({polyline:{positions:new Cesium.CallbackProperty(()=>trail,false),width:4,material:new Cesium.PolylineGlowMaterialProperty({glowPower:0.3,color:Cesium.Color.fromCssColorString('#00ff88')})}});
-  animEnts.push(trailEnt);
-  viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(18,47,2200000),orientation:{heading:Cesium.Math.toRadians(350),pitch:Cesium.Math.toRadians(-65),roll:0},duration:3});
-  const bar=document.getElementById('flightBar');
-  const iv=setInterval(()=>{
-    if(step>=fp.length){clearInterval(iv);landAtAirport(plane,trailEnt,trail);return;}
-    const p=fp[step],pos=Cesium.Cartesian3.fromDegrees(p.lng,p.lat,p.alt);
-    plane.position=pos;trail.push(pos);
-    bar.style.width=(step/fp.length*100)+'%';
-    if(step===Math.floor(fp.length*0.6)){
-      document.getElementById('flyLabel').textContent='✈ APPROACHING BREMEN';
-      viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(APT.lng+0.1,APT.lat-0.05,80000),orientation:{heading:Cesium.Math.toRadians(200),pitch:Cesium.Math.toRadians(-35),roll:0},duration:4});
+
+  // ── Camera: show route from wide angle, then follow ──
+  const midLng = (ORIGIN_AIRPORT.lng + DEST.airport.lng)/2;
+  const midLat = (ORIGIN_AIRPORT.lat + DEST.airport.lat)/2;
+  viewer.camera.flyTo({
+    destination:Cesium.Cartesian3.fromDegrees(midLng, midLat-5, 2500000),
+    orientation:{heading:Cesium.Math.toRadians(10),pitch:Cesium.Math.toRadians(-55),roll:0},
+    duration:3
+  });
+
+  // ── ANIMATE FLIGHT ──
+  let step=0;
+  const flyIv = setInterval(()=>{
+    if(step >= flightPts.length){
+      clearInterval(flyIv);
+      startGroundPhase(plane, blueFlightLine, greenFlightLine, greenTrail, groundPts);
+      return;
+    }
+    plane.position = flightPts[step];
+    greenTrail.push(flightPts[step]);
+
+    // Camera descends as plane approaches destination
+    if(step === Math.floor(flightPts.length * 0.55)){
+      document.getElementById('hudLabel').textContent = '✈ APPROACHING BREMEN';
+      viewer.camera.flyTo({
+        destination:Cesium.Cartesian3.fromDegrees(DEST.airport.lng+0.15, DEST.airport.lat-0.08, 60000),
+        orientation:{heading:Cesium.Math.toRadians(210),pitch:Cesium.Math.toRadians(-30),roll:0},
+        duration:5
+      });
+    }
+    if(step === Math.floor(flightPts.length * 0.85)){
+      document.getElementById('hudLabel').textContent = '🛬 LANDING';
+      viewer.camera.flyTo({
+        destination:Cesium.Cartesian3.fromDegrees(DEST.airport.lng+0.01, DEST.airport.lat-0.008, 2000),
+        orientation:{heading:Cesium.Math.toRadians(300),pitch:Cesium.Math.toRadians(-20),roll:0},
+        duration:3
+      });
     }
     step++;
-  },65);
+  }, 55);
 }
 
-function landAtAirport(plane,trailEnt,trail){
-  document.getElementById('flyLabel').textContent='🛬 LANDING AT BREMEN AIRPORT';
-  document.getElementById('flySubLabel').textContent='Touchdown!';
-  document.getElementById('flightBar').style.width='100%';
-  viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(APT.lng+0.008,APT.lat-0.005,1200),orientation:{heading:Cesium.Math.toRadians(310),pitch:Cesium.Math.toRadians(-25),roll:0},duration:3,
-    complete:()=>{setTimeout(()=>{
-      viewer.entities.remove(plane);animEnts=animEnts.filter(e=>e!==plane);
-      const student=viewer.entities.add({position:Cesium.Cartesian3.fromDegrees(APT.lng,APT.lat,20),billboard:{image:makeIcon('🎓',64,'rgba(0,255,136,0.3)'),scale:0.8,verticalOrigin:Cesium.VerticalOrigin.CENTER}});
-      animEnts.push(student);
-      walkToCampus(student,trailEnt,trail);
-    },800);}
+function startGroundPhase(plane, blueFlightLine, greenFlightLine, greenTrail, groundPts){
+  showPhase('walkHud');
+
+  // ── Draw BLUE ground route ──
+  const blueGroundLine = viewer.entities.add({
+    polyline:{
+      positions: groundPts,
+      width: 2,
+      clampToGround: true,
+      material: new Cesium.PolylineGlowMaterialProperty({glowPower:0.15, color:Cesium.Color.fromCssColorString('#0055ff')})
+    }
   });
-}
+  animEnts.push(blueGroundLine);
 
-function walkToCampus(student,trailEnt,trail){
-  showPhase('walking');
-  const wp=[{lat:53.06,lng:8.78},{lat:53.08,lng:8.77},{lat:53.10,lng:8.75},{lat:53.12,lng:8.72},{lat:53.14,lng:8.69},{lat:53.155,lng:8.67}];
-  const gp=groundPath(APT,CAM,wp,100);
-  let step=0;const bar=document.getElementById('walkBar');
-  viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees((APT.lng+CAM.lng)/2,(APT.lat+CAM.lat)/2,8000),orientation:{heading:Cesium.Math.toRadians(320),pitch:Cesium.Math.toRadians(-40),roll:0},duration:3});
-  const iv=setInterval(()=>{
-    if(step>=gp.length){clearInterval(iv);arriveAtCampus();return;}
-    const p=gp[step],pos=Cesium.Cartesian3.fromDegrees(p.lng,p.lat,p.alt);
-    student.position=pos;trail.push(pos);
-    bar.style.width=(step/gp.length*100)+'%';
-    if(step===Math.floor(gp.length*0.5)){viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(CAM.lng+0.005,CAM.lat-0.003,2500),orientation:{heading:Cesium.Math.toRadians(300),pitch:Cesium.Math.toRadians(-30),roll:0},duration:4});}
+  // ── Transform plane → student ──
+  viewer.entities.remove(plane);
+  animEnts = animEnts.filter(e=>e!==plane);
+
+  const student = viewer.entities.add({
+    position: groundPts[0],
+    billboard:{image:makeStudentIcon(), scale:0.7, verticalOrigin:Cesium.VerticalOrigin.CENTER}
+  });
+  animEnts.push(student);
+
+  // Camera: aerial view of the route
+  viewer.camera.flyTo({
+    destination:Cesium.Cartesian3.fromDegrees((DEST.airport.lng+DEST.campus.lng)/2,(DEST.airport.lat+DEST.campus.lat)/2, 6000),
+    orientation:{heading:Cesium.Math.toRadians(320),pitch:Cesium.Math.toRadians(-35),roll:0},
+    duration:3
+  });
+
+  // ── ANIMATE GROUND WALK ──
+  let step=0;
+  const walkIv = setInterval(()=>{
+    if(step >= groundPts.length){
+      clearInterval(walkIv);
+      arriveAtCampus();
+      return;
+    }
+    student.position = groundPts[step];
+    greenTrail.push(groundPts[step]);
+
+    // Camera zooms closer midway
+    if(step === Math.floor(groundPts.length * 0.4)){
+      viewer.camera.flyTo({
+        destination:Cesium.Cartesian3.fromDegrees(DEST.campus.lng+0.008, DEST.campus.lat-0.005, 2000),
+        orientation:{heading:Cesium.Math.toRadians(300),pitch:Cesium.Math.toRadians(-25),roll:0},
+        duration:4
+      });
+    }
+    // Final approach
+    if(step === Math.floor(groundPts.length * 0.8)){
+      viewer.camera.flyTo({
+        destination:Cesium.Cartesian3.fromDegrees(DEST.campus.lng+0.004, DEST.campus.lat-0.002, 600),
+        orientation:{heading:Cesium.Math.toRadians(-20),pitch:Cesium.Math.toRadians(-18),roll:0},
+        duration:3
+      });
+    }
     step++;
-  },80);
+  }, 70);
 }
 
-function arriveAtCampus(){viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(CAM.lng+0.003,CAM.lat-0.002,600),orientation:{heading:Cesium.Math.toRadians(-20),pitch:Cesium.Math.toRadians(-18),roll:0},duration:3,complete:()=>{droneActive=true;droneAngle=0;showPhase('drone');}});}
+function arriveAtCampus(){
+  setTimeout(()=>{
+    droneActive=true;droneAngle=0;
+    showPhase('drone');
+  },2000);
+}
 
 function showPrograms(){document.getElementById('phase-programs').classList.remove('hidden');renderPrograms();}
-function renderPrograms(){document.getElementById('programList').innerHTML=PRG[curTab].map(p=>'<div class="prog-item">'+p+'</div>').join('');}
+function renderPrograms(){document.getElementById('programList').innerHTML=DEST.programs[curTab].map(p=>'<div class="prog-item">'+p+'</div>').join('');}
 function switchTab(t){curTab=t;document.getElementById('tabUg').className='tab-btn'+(t==='ug'?' active':'');document.getElementById('tabPg').className='tab-btn'+(t==='pg'?' active':'');renderPrograms();}
-function restart(){droneActive=false;try{viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)}catch(e){}cleanup();showPhase('welcome');curTab='ug';document.getElementById('homeSearch').value='';document.getElementById('flightBar').style.width='0%';document.getElementById('walkBar').style.width='0%';document.getElementById('flyLabel').textContent='✈ FLYING TO GERMANY';document.getElementById('flySubLabel').textContent='Istanbul → Bremen Airport';viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0},duration:3});}
+
+function restart(){
+  droneActive=false;
+  try{viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);}catch(e){}
+  cleanup();showPhase('welcome');curTab='ug';
+  document.getElementById('homeSearch').value='';
+  document.getElementById('hudLabel').textContent='✈ ISTANBUL → BREMEN';
+  viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0},duration:3});
+}
+
 init();
 </script>
 </body>
