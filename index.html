@@ -105,7 +105,7 @@ const DESTS=[
   {
     key:"germany",flag:"🇩🇪",country:"Germany",
     uni:"Constructor University",city:"Bremen",
-    campus:{lat:53.16748,lng:8.65170},
+    campus:{lat:53.1688182,lng:8.6501056},
     programs:{
       ug:["Computer Science","Industrial Engineering & Management","Business Administration","Electrical & Computer Engineering","Psychology & Methods","Biochemistry & Cell Biology"],
       pg:["Data Engineering","Supply Chain Engineering & Management","Computer Science (MSc)","Productive Adult Longevity"]
@@ -114,7 +114,7 @@ const DESTS=[
   {
     key:"uk",flag:"🇬🇧",country:"United Kingdom",
     uni:"Queen Mary University of London",city:"London",
-    campus:{lat:51.5246,lng:-0.0384},
+    campus:{lat:51.5237113,lng:-0.040729},
     programs:{
       ug:["Law","Engineering","Computer Science","Business Management","Medicine","Dentistry","Economics & Finance"],
       pg:["Artificial Intelligence","Banking & Finance","International Commercial Law","Data Analytics","Global Health"]
@@ -223,7 +223,7 @@ function beginJourney(){
   ents.push(viewer.entities.add({polyline:{positions:new Cesium.CallbackProperty(()=>greenTrail,false),width:5,material:new Cesium.PolylineGlowMaterialProperty({glowPower:0.5,color:Cesium.Color.fromCssColorString('#00ff88')})}}));
 
   // Plane
-  const plane=viewer.entities.add({position:arc.pts[0],billboard:{image:makePlane(),scale:1.0,verticalOrigin:Cesium.VerticalOrigin.CENTER,rotation:0,disableDepthTestDistance:Number.POSITIVE_INFINITY}});
+  const plane=viewer.entities.add({position:arc.pts[0],billboard:{image:makePlane(),scale:1.4,verticalOrigin:Cesium.VerticalOrigin.CENTER,rotation:0,disableDepthTestDistance:Number.POSITIVE_INFINITY}});
   ents.push(plane);
 
   // Camera: STRAIGHT DOWN over midpoint — sees full arc
@@ -234,7 +234,7 @@ function beginJourney(){
   const camAlt=Math.max(dist*120000,1500000);
 
   viewer.camera.flyTo({
-    destination:Cesium.Cartesian3.fromDegrees(midLng,midLat,camAlt),
+    destination:Cesium.Cartesian3.fromDegrees(midLng,midLat,camAlt*1.2),
     orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0},
     duration:2.5
   });
@@ -250,7 +250,7 @@ function beginJourney(){
       const bearing=getBearing(arc.lats[step-1],arc.lngs[step-1],arc.lats[step],arc.lngs[step]);
       // Arrow points UP on canvas = 0° screen rotation = north
       // To point toward bearing: rotate by -(bearing) degrees
-      plane.billboard.rotation=Cesium.Math.toRadians(-bearing);
+      plane.billboard.rotation=Cesium.Math.toRadians(360-bearing);
     }
 
     if(step===Math.floor(arc.pts.length*0.6)){
