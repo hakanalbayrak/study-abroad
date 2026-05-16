@@ -13,6 +13,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
 #cesiumContainer{position:absolute;inset:0}
 .cesium-viewer-toolbar,.cesium-viewer-fullscreenContainer,.cesium-viewer-vrContainer,.cesium-viewer-geocoderContainer,.cesium-viewer-infoBoxContainer,.cesium-viewer-selectionIndicatorContainer,.cesium-viewer-animationContainer,.cesium-viewer-timelineContainer,.cesium-viewer-bottom{display:none!important}
 .cesium-widget-credits{font-size:9px!important;opacity:0.4!important}
+.cesium-widget-errorPanel{display:none!important}
 #loadScreen{position:absolute;inset:0;background:#010005;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;transition:opacity 1s}
 #loadScreen.fade{opacity:0;pointer-events:none}
 .spinner{width:44px;height:44px;border:3px solid rgba(0,200,255,0.15);border-top:3px solid #00f0ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
@@ -201,7 +202,7 @@ async function init(){
     viewer.clock.onTick.addEventListener(()=>{
       if(droneActive&&curDest){droneAngle+=0.12;viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,15),new Cesium.HeadingPitchRange(Cesium.Math.toRadians(droneAngle),Cesium.Math.toRadians(-22),400));}
     });
-  }catch(e){console.error(e);document.getElementById('loadScreen').innerHTML='<p style="color:#ff4444">'+e.message+'</p>';}
+  }catch(e){console.error(e);showFallback();}
 }
 
 function startFlow(){showPhase('selectHome');renderList();viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,36,3000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-80),roll:0},duration:2});}
@@ -310,24 +311,34 @@ function restart(){
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0},duration:3});
 }
 
-// ═══ WEBGL CHECK ═══
+// ═══ WEBGL CHECK + ERROR HANDLING ═══
 function hasWebGL(){
-  try{
-    const c=document.createElement('canvas');
-    return!!(c.getContext('webgl')||c.getContext('experimental-webgl'));
-  }catch(e){return false;}
+  try{const c=document.createElement('canvas');return!!(c.getContext('webgl2')||c.getContext('webgl')||c.getContext('experimental-webgl'));}catch(e){return false;}
 }
 function isInAppBrowser(){
   const ua=navigator.userAgent||'';
-  return /FBAN|FBAV|Instagram|Line|WhatsApp|Snapchat|Twitter|Weibo|WeChat|MicroMessenger/i.test(ua);
+  return /FBAN|FBAV|Instagram|Line\/|WhatsApp|Snapchat|Twitter|Weibo|WeChat|MicroMessenger|GSA\/|LinkedIn/i.test(ua);
 }
-
-if(!hasWebGL()||isInAppBrowser()){
+function showFallback(){
   document.getElementById('loadScreen').style.display='none';
   document.getElementById('fallbackScreen').style.display='block';
   document.getElementById('openInBrowser').href=window.location.href;
+  // Hide Cesium container to prevent any error overlays
+  document.getElementById('cesiumContainer').style.display='none';
+  document.getElementById('overlay').style.display='none';
+}
+
+// Suppress CesiumJS default error popup
+window.addEventListener('error',function(e){
+  if(e.message&&(e.message.includes('CesiumWidget')||e.message.includes('WebGL')||e.message.includes('webgl'))){
+    e.preventDefault();showFallback();
+  }
+});
+
+if(!hasWebGL()||isInAppBrowser()){
+  showFallback();
 }else{
-  init();
+  try{init();}catch(e){showFallback();}
 }
 </script>
 </body>
