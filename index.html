@@ -13,7 +13,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
 #cesiumContainer{position:absolute;inset:0}
 .cesium-viewer-toolbar,.cesium-viewer-fullscreenContainer,.cesium-viewer-vrContainer,.cesium-viewer-geocoderContainer,.cesium-viewer-infoBoxContainer,.cesium-viewer-selectionIndicatorContainer,.cesium-viewer-animationContainer,.cesium-viewer-timelineContainer,.cesium-viewer-bottom{display:none!important}
 .cesium-widget-credits{font-size:9px!important;opacity:0.4!important}
-.cesium-widget-errorPanel{display:none!important}
+.cesium-widget-errorPanel{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;position:absolute!important;left:-9999px!important}
 #loadScreen{position:absolute;inset:0;background:#010005;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;transition:opacity 1s}
 #loadScreen.fade{opacity:0;pointer-events:none}
 .spinner{width:44px;height:44px;border:3px solid rgba(0,200,255,0.15);border-top:3px solid #00f0ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
@@ -193,6 +193,7 @@ async function init(){
     viewer.camera.setView({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0}});
 
     // Hide loading screen, show welcome
+    siteLoaded=true;
     document.getElementById('loadScreen').classList.add('fade');
     setTimeout(()=>{document.getElementById('loadScreen').style.display='none';showPhase('welcome');},1000);
 
@@ -310,6 +311,10 @@ function restart(){
   document.getElementById('homeSearch').value='';
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0},duration:3});
 }
+
+// ═══ SAFETY TIMEOUT: if nothing loads in 8 seconds, show fallback ═══
+let siteLoaded=false;
+setTimeout(()=>{if(!siteLoaded)showFallback();},8000);
 
 // ═══ WEBGL CHECK + ERROR HANDLING ═══
 function hasWebGL(){
