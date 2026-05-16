@@ -131,7 +131,7 @@ const DESTS=[
 
 const CO=[{n:"Turkey",la:39.93,lo:32.86,f:"🇹🇷"},{n:"Azerbaijan",la:40.41,lo:49.87,f:"🇦🇿"},{n:"Kazakhstan",la:51.17,lo:71.43,f:"🇰🇿"},{n:"Pakistan",la:33.69,lo:73.04,f:"🇵🇰"},{n:"India",la:28.61,lo:77.21,f:"🇮🇳"},{n:"Nigeria",la:9.06,lo:7.49,f:"🇳🇬"},{n:"Egypt",la:30.04,lo:31.24,f:"🇪🇬"},{n:"Iran",la:35.69,lo:51.39,f:"🇮🇷"},{n:"Russia",la:55.76,lo:37.62,f:"🇷🇺"},{n:"Georgia",la:41.72,lo:44.79,f:"🇬🇪"},{n:"Saudi Arabia",la:24.71,lo:46.68,f:"🇸🇦"},{n:"Iraq",la:33.31,lo:44.37,f:"🇮🇶"},{n:"Ukraine",la:50.45,lo:30.52,f:"🇺🇦"},{n:"Uzbekistan",la:41.3,lo:69.28,f:"🇺🇿"},{n:"Morocco",la:33.97,lo:-6.85,f:"🇲🇦"},{n:"Lebanon",la:33.89,lo:35.5,f:"🇱🇧"},{n:"Jordan",la:31.95,lo:35.93,f:"🇯🇴"},{n:"Syria",la:33.51,lo:36.29,f:"🇸🇾"},{n:"China",la:39.9,lo:116.4,f:"🇨🇳"},{n:"South Korea",la:37.57,lo:126.98,f:"🇰🇷"},{n:"Bangladesh",la:23.81,lo:90.41,f:"🇧🇩"},{n:"Indonesia",la:-6.21,lo:106.85,f:"🇮🇩"},{n:"Colombia",la:4.71,lo:-74.07,f:"🇨🇴"},{n:"Mexico",la:19.43,lo:-99.13,f:"🇲🇽"},{n:"Kenya",la:-1.29,lo:36.82,f:"🇰🇪"},{n:"Ghana",la:5.6,lo:-0.19,f:"🇬🇭"},{n:"Brazil",la:-15.79,lo:-47.88,f:"🇧🇷"},{n:"Ethiopia",la:9.02,lo:38.75,f:"🇪🇹"},{n:"Turkmenistan",la:37.95,lo:58.38,f:"🇹🇲"},{n:"Kyrgyzstan",la:42.87,lo:74.59,f:"🇰🇬"}];
 
-let viewer,droneActive=false,droneAngle=0,curTab="ug",ents=[],curDest=null,google3dTileset=null;
+let viewer,droneActive=false,droneAngle=0,curTab="ug",ents=[],curDest=null;
 
 function getBearing(lat1,lng1,lat2,lng2){
   const dL=(lng2-lng1)*Math.PI/180,a=lat1*Math.PI/180,b=lat2*Math.PI/180;
@@ -160,23 +160,7 @@ function makeArc(start,end,steps){
 function showPhase(id){document.querySelectorAll('#overlay > div').forEach(d=>d.classList.add('hidden'));const e=document.getElementById('phase-'+id);if(e)e.classList.remove('hidden');}
 function cleanup(){ents.forEach(e=>{try{viewer.entities.remove(e)}catch(x){}});ents=[];}
 
-/* ═══ Load Google 3D Tiles on demand ═══ */
-async function loadGoogle3D(){
-  if(google3dTileset)return; // already loaded
-  try{
-    google3dTileset=await Cesium.Cesium3DTileset.fromUrl("https://tile.googleapis.com/v1/3dtiles/root.json?key="+GK);
-    viewer.scene.primitives.add(google3dTileset);
-  }catch(e){console.error("Google 3D Tiles failed:",e);}
-}
-
-function removeGoogle3D(){
-  if(google3dTileset){
-    viewer.scene.primitives.remove(google3dTileset);
-    google3dTileset=null;
-  }
-}
-
-/* ═══ INIT: lightweight globe first (no Google tiles) ═══ */
+/* ═══ INIT: Google 3D Tiles from the start (proven working) ═══ */
 async function init(){
   try{
     Cesium.Ion.defaultAccessToken=CT;
@@ -184,11 +168,14 @@ async function init(){
       timeline:false,animation:false,baseLayerPicker:false,geocoder:false,
       homeButton:false,navigationHelpButton:false,sceneModePicker:false,
       fullscreenButton:false,selectionIndicator:false,infoBox:false,
-      // globe: TRUE for fast loading with default satellite imagery
-      globe:true
+      globe:false
     });
-    viewer.scene.globe.enableLighting=false;
     viewer.scene.backgroundColor=Cesium.Color.fromCssColorString('#020010');
+
+    // Load Google 3D Tiles immediately
+    viewer.scene.primitives.add(await Cesium.Cesium3DTileset.fromUrl(
+      "https://tile.googleapis.com/v1/3dtiles/root.json?key="+GK
+    ));
 
     viewer.camera.setView({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0}});
 
@@ -237,9 +224,6 @@ function beginJourney(){
   const camAlt=Math.max(dist*160000,2200000);
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(midLng,midLat,camAlt),orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0},duration:2.5});
 
-  // Start preloading Google 3D Tiles in background during flight
-  loadGoogle3D();
-
   let step=0;
   const iv=setInterval(()=>{
     if(step>=arc.pts.length){clearInterval(iv);zoomToCampus(plane);return;}
@@ -257,9 +241,6 @@ function beginJourney(){
 /* ═══ TV VIEW ZOOM: destination always centered ═══ */
 function zoomToCampus(plane){
   viewer.entities.remove(plane);ents=ents.filter(e=>e!==plane);
-
-  // Hide default globe, Google 3D takes over for campus detail
-  viewer.scene.globe.show=false;
 
   let range=800000;
   let pitch=-50;
@@ -303,9 +284,6 @@ function restart(){
   droneActive=false;curDest=null;
   try{viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);}catch(e){}
   cleanup();
-  // Show globe again, remove Google 3D
-  viewer.scene.globe.show=true;
-  removeGoogle3D();
   showPhase('welcome');curTab='ug';
   document.getElementById('homeSearch').value='';
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0},duration:3});
