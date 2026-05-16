@@ -56,6 +56,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
   <div style="color:rgba(255,255,255,0.4);font-size:12px">Initializing 3D globe...</div>
 </div>
 
+<!-- WEBGL FALLBACK (shown if browser can't handle 3D) -->
+<div id="fallbackScreen" style="display:none;position:absolute;inset:0;background:#010005;z-index:600;padding:40px 24px;text-align:center;font-family:'Exo 2',sans-serif">
+  <div style="max-width:360px;margin:80px auto 0">
+    <div style="font-size:48px;margin-bottom:16px">🌍</div>
+    <h1 style="font-family:'Orbitron',sans-serif;font-size:22px;color:#00f0ff;margin-bottom:12px;letter-spacing:2px">STUDY ABROAD</h1>
+    <p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6;margin-bottom:24px">This 3D experience requires a full browser. You're viewing this in a mini browser that doesn't support 3D graphics.</p>
+    <a id="openInBrowser" style="display:inline-block;font-family:'Orbitron',sans-serif;font-weight:600;font-size:12px;letter-spacing:2px;background:linear-gradient(135deg,#00d4ff,#0066ff);color:#fff;padding:16px 36px;border-radius:30px;text-decoration:none;margin-bottom:16px" href="">OPEN IN SAFARI / CHROME</a>
+    <p style="color:rgba(255,255,255,0.3);font-size:11px;margin-top:20px">Tap the button above, or copy this link and paste it in Safari or Chrome:<br><span style="color:#00f0ff;word-break:break-all">hakanalbayrak.github.io/study-abroad</span></p>
+  </div>
+</div>
+
 <div id="cesiumContainer"></div>
 <div id="overlay">
   <div id="phase-welcome" class="center-text hidden">
@@ -299,7 +310,25 @@ function restart(){
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0},duration:3});
 }
 
-init();
+// ═══ WEBGL CHECK ═══
+function hasWebGL(){
+  try{
+    const c=document.createElement('canvas');
+    return!!(c.getContext('webgl')||c.getContext('experimental-webgl'));
+  }catch(e){return false;}
+}
+function isInAppBrowser(){
+  const ua=navigator.userAgent||'';
+  return /FBAN|FBAV|Instagram|Line|WhatsApp|Snapchat|Twitter|Weibo|WeChat|MicroMessenger/i.test(ua);
+}
+
+if(!hasWebGL()||isInAppBrowser()){
+  document.getElementById('loadScreen').style.display='none';
+  document.getElementById('fallbackScreen').style.display='block';
+  document.getElementById('openInBrowser').href=window.location.href;
+}else{
+  init();
+}
 </script>
 </body>
 </html>
