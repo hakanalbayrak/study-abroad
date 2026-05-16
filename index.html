@@ -235,7 +235,7 @@ function beginJourney(){
       document.getElementById('hudLabel').textContent='🛬 ARRIVING AT '+curDest.city.toUpperCase();
     }
     step++;
-  },12);
+  },6);
 }
 
 /* ═══ TV VIEW ZOOM: destination always centered ═══ */
@@ -249,7 +249,7 @@ function zoomToCampus(plane){
   document.getElementById('hudLabel').textContent='🎥 ZOOMING TO '+curDest.uni.toUpperCase();
 
   const zoomIv=setInterval(()=>{
-    range*=0.96;
+    range*=0.92;
     heading+=0.12;
     if(range<100000)pitch=-35;
     if(range<10000)pitch=-25;
