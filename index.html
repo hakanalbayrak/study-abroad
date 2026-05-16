@@ -249,7 +249,7 @@ function zoomToCampus(plane){
   document.getElementById('hudLabel').textContent='🎥 ZOOMING TO '+curDest.uni.toUpperCase();
 
   const zoomIv=setInterval(()=>{
-    range*=0.92;
+    range*=0.97;
     heading+=0.12;
     if(range<100000)pitch=-35;
     if(range<10000)pitch=-25;
