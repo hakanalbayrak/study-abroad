@@ -187,7 +187,7 @@ async function init(){
 
     // Drone tick
     viewer.clock.onTick.addEventListener(()=>{
-      if(droneActive&&curDest){droneAngle+=0.12;viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,15),new Cesium.HeadingPitchRange(Cesium.Math.toRadians(droneAngle),Cesium.Math.toRadians(-22),400));}
+      if(droneActive&&curDest){droneAngle+=0.12;viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,80),new Cesium.HeadingPitchRange(Cesium.Math.toRadians(droneAngle),Cesium.Math.toRadians(-52),200));}
     });
   }catch(e){console.error(e);throw e;}
 }
@@ -253,15 +253,16 @@ function zoomToCampus(plane){
     heading+=0.12;
     if(range<100000)pitch=-35;
     if(range<10000)pitch=-25;
-    if(range<2000)pitch=-22;
+    if(range<2000)pitch=-35;
 
     viewer.camera.lookAt(
-      Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,15),
+      Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,25),
       new Cesium.HeadingPitchRange(Cesium.Math.toRadians(heading),Cesium.Math.toRadians(pitch),range)
     );
 
-    if(range<=420){
+    if(range<=210){
       clearInterval(zoomIv);
+      cleanup();
       droneActive=true;droneAngle=heading;
       document.getElementById('droneTitle').textContent='🎥 '+curDest.uni.toUpperCase()+' — DRONE VIEW';
       document.getElementById('droneSub').textContent='Google Photorealistic 3D · '+curDest.city+', '+curDest.country;
