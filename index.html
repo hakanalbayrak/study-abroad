@@ -187,7 +187,7 @@ async function init(){
 
     // Drone tick
     viewer.clock.onTick.addEventListener(()=>{
-      if(droneActive&&curDest){droneAngle+=0.12;viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,55),new Cesium.HeadingPitchRange(Cesium.Math.toRadians(droneAngle),Cesium.Math.toRadians(-30),300));}
+      if(droneActive&&curDest){droneAngle+=0.12;viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(curDest.campus.lng,curDest.campus.lat,55),new Cesium.HeadingPitchRange(Cesium.Math.toRadians(droneAngle),Cesium.Math.toRadians(-22),300));}
     });
   }catch(e){console.error(e);throw e;}
 }
