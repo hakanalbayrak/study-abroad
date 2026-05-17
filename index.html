@@ -33,12 +33,22 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
 .list-scroll{display:flex;flex-direction:column;gap:4px;max-height:250px;overflow-y:auto}
 .neon-line{height:1px;background:linear-gradient(90deg,transparent,#ff00aa,transparent);margin:16px 0}
 .prog-item{padding:9px 12px;background:rgba(255,255,255,0.04);border-radius:7px;border-left:3px solid #ff00aa;color:rgba(255,255,255,0.8);font-size:12px;margin-bottom:6px}
-.tab-btn{padding:7px 18px;border-radius:18px;cursor:pointer;font-size:10px;font-family:'Orbitron',sans-serif;font-weight:600;letter-spacing:1.5px;border:none;pointer-events:auto;transition:all .3s;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.06)}
+.tab-btn{padding:6px 14px;border-radius:18px;cursor:pointer;font-size:9px;font-family:'Orbitron',sans-serif;font-weight:600;letter-spacing:1.5px;border:none;pointer-events:auto;transition:all .3s;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.06)}
 .tab-btn.active{background:linear-gradient(135deg,#ff00aa,#cc0088);color:#fff}
+.prog-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px}
+.prog-table th{color:rgba(255,0,170,0.7);font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:1px;padding:6px 5px;text-align:left;border-bottom:1px solid rgba(255,0,170,0.25);white-space:nowrap}
+.prog-table td{padding:5px 5px;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.82);vertical-align:top;font-size:11px}
+.prog-table .data-row{cursor:pointer}.prog-table .data-row:hover td{background:rgba(255,0,170,0.07)}
+.prog-fee{color:#ff66cc;font-weight:600;white-space:nowrap}.prog-dur{color:rgba(255,255,255,0.45);text-align:center;white-space:nowrap}
+.req-row td{padding:4px 5px 8px;border-bottom:1px solid rgba(255,0,170,0.1)}.hidden-row{display:none}
+.prog-req{color:rgba(255,255,255,0.38);font-size:10px;line-height:1.5;padding:2px 0}
+.no-prog{color:rgba(255,255,255,0.3);font-size:12px;text-align:center;padding:20px 0}
+.dest-search{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,0,170,0.2);border-radius:9px;padding:8px 12px;color:#fff;font-size:13px;font-family:'Exo 2',sans-serif;outline:none;margin-bottom:10px}
+.country-label{font-size:8px;font-family:'Orbitron',sans-serif;letter-spacing:2px;color:rgba(255,0,170,0.4);padding:10px 4px 4px;display:block}
 .hidden{display:none!important}
 .center-text{text-align:center}
 .bottom-panel{position:absolute;bottom:30px;left:50%;transform:translateX(-50%)}
-.right-panel{position:absolute;right:20px;top:50%;transform:translateY(-50%);max-width:360px;width:85%;max-height:75vh}
+.right-panel{position:absolute;right:20px;top:50%;transform:translateY(-50%);max-width:420px;width:90%;max-height:80vh}
 .hud{position:absolute;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,10,20,0.8);border:1px solid rgba(0,255,136,0.3);border-radius:12px;padding:10px 20px;backdrop-filter:blur(16px);text-align:center;pointer-events:none}
 .pulse{animation:pulse 1s infinite}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -68,6 +78,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
   </div>
 </div>
 
+<script src="data/universities.js"></script>
 <div id="cesiumContainer"></div>
 <div id="overlay">
   <div id="phase-welcome" class="center-text hidden">
@@ -87,8 +98,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
     <p id="homeName" class="title" style="font-size:16px;color:#00f0ff;letter-spacing:2px"></p>
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px"><div style="width:6px;height:6px;border-radius:3px;background:#00ffcc" class="pulse"></div><p style="color:rgba(255,255,255,0.4);font-size:12px">Locating you on Earth...</p></div>
   </div>
-  <div id="phase-selectDest" class="panel panel-pink hidden" style="max-width:420px">
-    <h2 class="title center-text" style="font-size:18px;color:#ff00aa;margin:0 0 14px">🎓 WHERE TO STUDY?</h2>
+  <div id="phase-selectDest" class="panel panel-pink hidden" style="max-width:460px">
+    <h2 class="title center-text" style="font-size:18px;color:#ff00aa;margin:0 0 10px">🎓 WHERE TO STUDY?</h2>
+    <input class="dest-search" id="destSearch" placeholder="Search university or country..." oninput="renderDests(this.value)">
     <div id="destList"></div>
   </div>
   <div id="phase-flightHud" class="hud hidden">
@@ -105,7 +117,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#010005;font-family:
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span id="progFlag" style="font-size:28px"></span><div><h3 class="title" id="progUni" style="font-size:14px;color:#ff00aa;margin:0"></h3><p id="progLoc" style="color:rgba(255,255,255,0.4);font-size:11px;margin:3px 0 0"></p></div></div>
     <div class="neon-line"></div>
     <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:12px"><div style="min-width:24px;height:24px;border-radius:12px;background:rgba(255,0,170,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;margin-top:2px">💬</div><p style="color:rgba(255,255,255,0.55);font-size:12px;margin:0;line-height:1.5;font-style:italic">What would you like to study?</p></div>
-    <div style="display:flex;gap:6px;margin-bottom:12px"><button class="tab-btn active" id="tabUg" onclick="switchTab('ug')">UNDERGRADUATE</button><button class="tab-btn" id="tabPg" onclick="switchTab('pg')">POSTGRADUATE</button></div>
+    <div style="display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap"><button class="tab-btn active" id="tabUg" onclick="switchTab('ug')">UNDERGRADUATE</button><button class="tab-btn" id="tabPg" onclick="switchTab('pg')">POSTGRADUATE</button><button class="tab-btn" id="tabOther" onclick="switchTab('other')">FOUNDATION</button></div>
     <div id="programList"></div>
     <div class="neon-line"></div>
     <div class="center-text"><button class="btn btn-cyan" style="padding:10px 26px;border-width:1px" onclick="restart()">← START OVER</button></div>
@@ -117,17 +129,8 @@ const GK="AIzaSyCDvg77OufOzvBqRqYMThhN0dZC2heEpSQ";
 const CT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYzE3NzFmNS1jMWMyLTQwN2ItODBkOS1hOTExZGJlZThmMDIiLCJpZCI6NDMxOTQzLCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3Nzg4MzM1MTF9.hrmi81Vw8NYSevYkKIYYgy9ck1sbQLj792m_7MeGRSg";
 const ORIGIN={lat:41.2615,lng:28.7420};
 
-const DESTS=[
-  {key:"germany",flag:"🇩🇪",country:"Germany",uni:"Constructor University",city:"Bremen",
-   campus:{lat:53.1688182,lng:8.6501056},
-   programs:{ug:["Computer Science","Industrial Engineering & Management","Business Administration","Electrical & Computer Engineering","Psychology & Methods","Biochemistry & Cell Biology"],pg:["Data Engineering","Supply Chain Engineering & Management","Computer Science (MSc)","Productive Adult Longevity"]}},
-  {key:"uk-qm",flag:"🇬🇧",country:"United Kingdom",uni:"Queen Mary University of London",city:"London",
-   campus:{lat:51.5237113,lng:-0.040729},
-   programs:{ug:["Law","Engineering","Computer Science","Business Management","Medicine","Dentistry","Economics & Finance"],pg:["Artificial Intelligence","Banking & Finance","International Commercial Law","Data Analytics","Global Health"]}},
-  {key:"uk-rh",flag:"🇬🇧",country:"United Kingdom",uni:"Royal Holloway University of London",city:"Egham, Surrey",
-   campus:{lat:51.4247097,lng:-0.5667494},
-   programs:{ug:["Computer Science","Business Management","Psychology","Economics","Law","English","Physics"],pg:["Artificial Intelligence","Cybersecurity","Data Science","International Management","Sustainability & Business"]}}
-];
+// University data loaded from data/universities.js (UNIVERSITIES const)
+// To add/edit universities: update data/universities.js or re-run scripts/generate-universities.py
 
 const CO=[{n:"Turkey",la:39.93,lo:32.86,f:"🇹🇷"},{n:"Azerbaijan",la:40.41,lo:49.87,f:"🇦🇿"},{n:"Kazakhstan",la:51.17,lo:71.43,f:"🇰🇿"},{n:"Pakistan",la:33.69,lo:73.04,f:"🇵🇰"},{n:"India",la:28.61,lo:77.21,f:"🇮🇳"},{n:"Nigeria",la:9.06,lo:7.49,f:"🇳🇬"},{n:"Egypt",la:30.04,lo:31.24,f:"🇪🇬"},{n:"Iran",la:35.69,lo:51.39,f:"🇮🇷"},{n:"Russia",la:55.76,lo:37.62,f:"🇷🇺"},{n:"Georgia",la:41.72,lo:44.79,f:"🇬🇪"},{n:"Saudi Arabia",la:24.71,lo:46.68,f:"🇸🇦"},{n:"Iraq",la:33.31,lo:44.37,f:"🇮🇶"},{n:"Ukraine",la:50.45,lo:30.52,f:"🇺🇦"},{n:"Uzbekistan",la:41.3,lo:69.28,f:"🇺🇿"},{n:"Morocco",la:33.97,lo:-6.85,f:"🇲🇦"},{n:"Lebanon",la:33.89,lo:35.5,f:"🇱🇧"},{n:"Jordan",la:31.95,lo:35.93,f:"🇯🇴"},{n:"Syria",la:33.51,lo:36.29,f:"🇸🇾"},{n:"China",la:39.9,lo:116.4,f:"🇨🇳"},{n:"South Korea",la:37.57,lo:126.98,f:"🇰🇷"},{n:"Bangladesh",la:23.81,lo:90.41,f:"🇧🇩"},{n:"Indonesia",la:-6.21,lo:106.85,f:"🇮🇩"},{n:"Colombia",la:4.71,lo:-74.07,f:"🇨🇴"},{n:"Mexico",la:19.43,lo:-99.13,f:"🇲🇽"},{n:"Kenya",la:-1.29,lo:36.82,f:"🇰🇪"},{n:"Ghana",la:5.6,lo:-0.19,f:"🇬🇭"},{n:"Brazil",la:-15.79,lo:-47.88,f:"🇧🇷"},{n:"Ethiopia",la:9.02,lo:38.75,f:"🇪🇹"},{n:"Turkmenistan",la:37.95,lo:58.38,f:"🇹🇲"},{n:"Kyrgyzstan",la:42.87,lo:74.59,f:"🇰🇬"}];
 
@@ -200,8 +203,18 @@ function pickHome(n,lat,lng,f){
   showPhase('atHome');
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(lng,lat-5,1800000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-70),roll:0},duration:2.5,complete:()=>setTimeout(()=>{showPhase('selectDest');renderDests();},1500)});
 }
-function renderDests(){document.getElementById('destList').innerHTML=DESTS.map((d,i)=>'<button class="dest-btn" onclick="selectDest('+i+')"><span style="font-size:30px">'+d.flag+'</span><div><div style="font-weight:600;font-size:14px">'+d.country+'</div><div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">'+d.uni+' · '+d.city+'</div></div></button>').join('');}
-function selectDest(idx){curDest=DESTS[idx];beginJourney();}
+function renderDests(q){
+  q=(q||'').toLowerCase();
+  const live=UNIVERSITIES.filter(u=>u.campus&&(!q||u.uni.toLowerCase().includes(q)||u.country.toLowerCase().includes(q)||u.city.toLowerCase().includes(q)));
+  const grouped={};
+  live.forEach(u=>{if(!grouped[u.country])grouped[u.country]=[];grouped[u.country].push(u);});
+  if(!live.length){document.getElementById('destList').innerHTML='<div class="no-prog">No results</div>';return;}
+  document.getElementById('destList').innerHTML=Object.entries(grouped).sort((a,b)=>a[0].localeCompare(b[0])).map(([country,unis])=>
+    '<span class="country-label">'+country.toUpperCase()+'</span>'+
+    unis.map(u=>'<button class="dest-btn" onclick="selectDest(\''+u.id+'\')"><span style="font-size:26px">'+u.flag+'</span><div><div style="font-weight:600;font-size:13px">'+u.uni+'</div><div style="font-size:11px;color:rgba(255,255,255,0.38);margin-top:2px">'+u.city+' · '+u.programs.length+' programs</div></div></button>').join('')
+  ).join('');
+}
+function selectDest(id){curDest=UNIVERSITIES.find(u=>u.id===id);beginJourney();}
 
 /* ═══ FLIGHT ═══ */
 function beginJourney(){
@@ -278,8 +291,39 @@ function showPrograms(){
   document.getElementById('progLoc').textContent='📍 '+curDest.city+', '+curDest.country;
   renderPrograms();
 }
-function renderPrograms(){document.getElementById('programList').innerHTML=curDest.programs[curTab].map(p=>'<div class="prog-item">'+p+'</div>').join('');}
-function switchTab(t){curTab=t;document.getElementById('tabUg').className='tab-btn'+(t==='ug'?' active':'');document.getElementById('tabPg').className='tab-btn'+(t==='pg'?' active':'');renderPrograms();}
+function filterByTab(p){
+  if(curTab==='ug')return p.level==="Bachelor's Degree";
+  if(curTab==='pg')return p.level==="Master's Degree"||p.level==="Graduate Certificate & Diploma";
+  return p.level!=="Bachelor's Degree"&&p.level!=="Master's Degree"&&p.level!=="Graduate Certificate & Diploma";
+}
+function renderPrograms(){
+  const list=curDest.programs.filter(filterByTab);
+  if(!list.length){document.getElementById('programList').innerHTML='<div class="no-prog">No programs in this category</div>';return;}
+  document.getElementById('programList').innerHTML='<table class="prog-table"><thead><tr><th>PROGRAM</th><th>FIELD</th><th>FEE/YR</th><th>YRS</th></tr></thead><tbody>'+
+    list.map(p=>{
+      const fee=p.feeUSD>0?'$'+p.feeUSD.toLocaleString():'—';
+      const dur=p.duration?p.duration+'yr':'—';
+      const hasDetail=p.requirements||p.deadline||p.notes;
+      return '<tr class="data-row"'+(hasDetail?' onclick="toggleReq(this)"':'')+'>'+
+        '<td>'+p.name+'</td>'+
+        '<td style="color:rgba(255,255,255,0.42)">'+p.domain+'</td>'+
+        '<td class="prog-fee">'+fee+'</td>'+
+        '<td class="prog-dur">'+dur+'</td>'+
+        '</tr>'+
+        (hasDetail?'<tr class="req-row hidden-row"><td colspan="4">'+
+          (p.requirements?'<div class="prog-req">📋 '+p.requirements+'</div>':'')+
+          (p.deadline?'<div class="prog-req">📅 Deadline: '+p.deadline+'</div>':'')+
+          (p.notes?'<div class="prog-req">💡 '+p.notes+'</div>':'')+
+        '</td></tr>':'');
+    }).join('')+'</tbody></table>';
+}
+function toggleReq(row){const n=row.nextElementSibling;if(n&&n.classList.contains('req-row'))n.classList.toggle('hidden-row');}
+function switchTab(t){
+  curTab=t;
+  ['tabUg','tabPg','tabOther'].forEach(id=>document.getElementById(id).className='tab-btn');
+  document.getElementById(t==='ug'?'tabUg':t==='pg'?'tabPg':'tabOther').className='tab-btn active';
+  renderPrograms();
+}
 
 function restart(){
   droneActive=false;curDest=null;
@@ -287,6 +331,7 @@ function restart(){
   cleanup();
   showPhase('welcome');curTab='ug';
   document.getElementById('homeSearch').value='';
+  document.getElementById('destSearch').value='';
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(35,35,10000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-88),roll:0},duration:3});
 }
 

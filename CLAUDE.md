@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-A single-file interactive 3D study-abroad explorer. No build step, no package manager — the entire app lives in `index.html`. Open it directly in a browser or serve via GitHub Pages (`hakanalbayrak.github.io/study-abroad`).
+Phase 1 MVP of a multi-sided EdTech marketplace (students, agents, accommodation providers). The current codebase is a single-file interactive 3D campus tour. No build step, no package manager — the entire app lives in `index.html`. Deployed via GitHub Pages (`hakanalbayrak.github.io/study-abroad`).
+
+Future phases will introduce Next.js, Supabase, and Stripe — do not scaffold or suggest these unless asked. Make small targeted edits only; never rewrite the full file.
 
 ## External Dependencies (CDN)
 
@@ -37,3 +39,15 @@ Add an entry to the `DESTS` array with the same shape as the existing entries. T
 ## Adding a Home Country
 
 Add an entry to the `CO` array: `{n, la, lo, f}` (name, latitude, longitude, flag emoji).
+
+## Phase 1 Remaining Work
+
+- Fix plane icon rotation to align with flight path bearing
+- Improve camera tracking during flight
+- Add 9 universities: EU Business School Barcelona, Corvinus University (Hungary), Charles University (Czech Republic), GBS Malta, University of Europe Dubai, University of Vienna, Alberta College (Canada), Florida International University (USA), University of Twente (Netherlands)
+- Student questionnaire (graduation level, English level, field, countries)
+- Lead capture form (name, email, WhatsApp)
+- Mobile responsive design
+- Custom domain setup
+
+Roadmap: https://www.notion.so/362de2a8593e8176bae2e53000bfa415
